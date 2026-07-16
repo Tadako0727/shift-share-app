@@ -29,7 +29,7 @@ export default function App(){
    {tab==='today'&&<Today shifts={shifts} members={members} edit={edit} onEdit={setDraft}/>}
    {tab==='calendar'&&<CalendarView month={month} setMonth={setMonth} shifts={shifts} onDay={setSelectedDate}/>}
    {tab==='members'&&<MembersView members={members} shifts={shifts} onMember={setSelectedMember}/>}
-   {tab==='settings'&&<SettingsView me={me} members={members} history={history} edit={edit} onToggle={toggleEdit} onChoose={choose} onRename={async name=>{if(await call('set_display_name',{p_member_id:me.id,p_display_name:name}))return true;return false}}/>}
+   {tab==='settings'&&<SettingsView me={me} members={members} history={history} edit={edit} onToggle={toggleEdit} onChoose={id=>{choose(id);setTab('today')}} onRename={async name=>{if(await call('set_display_name',{p_member_id:me.id,p_display_name:name}))return true;return false}}/>}
   </main>
   {edit&&<button className="fab" onClick={()=>setBulk(true)} aria-label="シフトを登録"><Plus/></button>}
   <nav>{([{id:'today',icon:Home,label:'今日'},{id:'calendar',icon:CalendarDays,label:'カレンダー'},{id:'members',icon:Users,label:'メンバー'},{id:'settings',icon:Settings,label:'設定'}] as const).map(i=><button className={tab===i.id?'active':''} onClick={()=>setTab(i.id)} key={i.id}><i.icon/><span>{i.label}</span></button>)}</nav>
