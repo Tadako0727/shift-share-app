@@ -1,6 +1,8 @@
 import {useEffect,useMemo,useState} from 'react';
 import {CalendarDays,ChevronLeft,ChevronRight,Clock3,History as HistoryIcon,Home,Settings,Users,UtensilsCrossed,Moon,AlertTriangle,X,Plus,Pencil,Trash2,Upload,CalendarOff} from 'lucide-react';
 import {ClosedDay,configured,History,includesKind,localDate,Member,parseShiftBoard,Shift,shownName,supabase} from './lib';
+import Login from './Login';
+import './auth.css';
 
 type Tab='today'|'calendar'|'members'|'settings';
 type Draft={id?:string;member_id:string;shift_date:string;start_time:string;end_time:string};
@@ -9,19 +11,21 @@ const jaDate=(s:string,detail=false)=>new Intl.DateTimeFormat('ja-JP',detail?{mo
 
 export default function App(){
  const [members,setMembers]=useState<Member[]>([]),[shifts,setShifts]=useState<Shift[]>([]),[history,setHistory]=useState<History[]>([]),[closedDays,setClosedDays]=useState<ClosedDay[]>([]);
- const [meId,setMeId]=useState(localStorage.getItem(MEMBER_KEY)||''),[tab,setTab]=useState<Tab>('today'),[loading,setLoading]=useState(true),[error,setError]=useState('');
+ const [meId,setMeId]=useState(localStorage.getItem(MEMBER_KEY)||''),[tab,setTab]=useState<Tab>('today'),[loading,setLoading]=useState(true),[signedIn,setSignedIn]=useState(false),[error,setError]=useState('');
  const [edit,setEdit]=useState(sessionStorage.getItem(EDIT_KEY)==='1'),[month,setMonth]=useState(()=>new Date()),[selectedDate,setSelectedDate]=useState<string|null>(null),[selectedMember,setSelectedMember]=useState<string|null>(null),[draft,setDraft]=useState<Draft|null>(null),[bulk,setBulk]=useState(false);
  const me=members.find(m=>m.id===meId);
  const load=async()=>{const [m,s,h,c]=await Promise.all([supabase.from('members').select('id,name,display_name,is_host').order('name'),supabase.from('shifts').select('*').order('shift_date').order('start_time'),supabase.from('shift_history').select('*').order('created_at',{ascending:false}).limit(50),supabase.from('closed_days').select('closed_date,label,kind').order('closed_date')]);if(m.error||s.error||c.error){setError(m.error?.message||s.error?.message||c.error?.message||'読込に失敗しました');return}setMembers(m.data||[]);setShifts(s.data||[]);setHistory(h.data||[]);setClosedDays((c.data||[]) as ClosedDay[])};
- useEffect(()=>{(async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();if(!data.session){const r=await supabase.auth.signInAnonymously();if(r.error){setError('Supabaseで匿名サインインを有効にしてください');setLoading(false);return}}await load();setLoading(false)})();},[]);
- useEffect(()=>{if(loading)return;const channel=supabase.channel('shiftcal-live').on('postgres_changes',{event:'*',schema:'public',table:'shifts'},load).on('postgres_changes',{event:'*',schema:'public',table:'members'},load).on('postgres_changes',{event:'*',schema:'public',table:'closed_days'},load).subscribe();return()=>{void supabase.removeChannel(channel)}},[loading]);
+ useEffect(()=>{let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}const mine=await supabase.rpc('current_member_profile').maybeSingle();const mineData=mine.data as Member|null;if(mine.error||!mineData){await supabase.auth.signOut();if(active){setSignedIn(false);setError('このメールアドレスは登録されていません。ホストに登録を依頼してください。');setLoading(false)}return}if(!active)return;choose(mineData.id);setSignedIn(true);await load();if(active)setLoading(false)};void start();const {data:listener}=supabase.auth.onAuthStateChange(event=>{if(event==='SIGNED_IN')setTimeout(()=>void start(),0);if(event==='SIGNED_OUT'&&active){setSignedIn(false);setLoading(false)}});return()=>{active=false;listener.subscription.unsubscribe()}},[]);
+ useEffect(()=>{if(loading||!signedIn)return;const channel=supabase.channel('shiftcal-live').on('postgres_changes',{event:'*',schema:'public',table:'shifts'},load).on('postgres_changes',{event:'*',schema:'public',table:'members'},load).on('postgres_changes',{event:'*',schema:'public',table:'closed_days'},load).subscribe();return()=>{void supabase.removeChannel(channel)}},[loading,signedIn]);
+ useEffect(()=>{if(!signedIn)return;void supabase.rpc('current_member_profile').maybeSingle().then(({data})=>{const member=data as Member|null;if(member&&member.id!==meId){localStorage.setItem(MEMBER_KEY,member.id);setMeId(member.id)}})},[signedIn,meId]);
  const choose=(id:string)=>{localStorage.setItem(MEMBER_KEY,id);setMeId(id)};
  const toggleEdit=()=>{const next=!edit;next?sessionStorage.setItem(EDIT_KEY,'1'):sessionStorage.removeItem(EDIT_KEY);setEdit(next)};
  const call=async(fn:string,args:Record<string,unknown>)=>{setError('');const r=await supabase.rpc(fn,args);if(r.error){setError(r.error.message);return false}await load();return true};
  const saveDraft=async(d:Draft)=>{if(!me)return;const args={p_actor_member_id:me.id,p_target_member_id:d.member_id,p_shift_date:d.shift_date,p_start_time:d.start_time,p_end_time:d.end_time};const ok=d.id?await call('update_shift',{p_shift_id:d.id,...args}):await call('create_shift',args);if(ok)setDraft(null)};
  const remove=async(id:string)=>{if(me&&confirm('このシフトを削除しますか？')&&await call('delete_shift',{p_shift_id:id,p_actor_member_id:me.id}))setDraft(null)};
  if(loading)return <div className="splash"><span className="logo">S</span><p>シフトを読み込んでいます</p></div>;
- if(!me)return <Identity members={members} error={error} onChoose={choose}/>;
+ if(!signedIn)return <Login error={error}/>;
+ if(!me)return <div className="splash"><span className="logo">S</span><p>登録情報を確認しています</p></div>;
  const title=tab==='today'?'今日':tab==='calendar'?'カレンダー':tab==='members'?'メンバー':'設定';
  return <div className="app"><header><div><small>{new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'long'}).format(new Date())}</small><h1>{title}</h1></div><button className={`mode ${edit?'active':''}`} onClick={toggleEdit}>{edit?'変更モード中':'閲覧モード'}</button></header>
   {error&&<div className="error">{error}<button onClick={()=>setError('')}><X size={16}/></button></div>}
