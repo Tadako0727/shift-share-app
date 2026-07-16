@@ -1,7 +1,14 @@
 .login-form{display:grid;gap:10px;margin:26px auto 0;max-width:440px}
 .login-form input{width:100%;min-width:0;border:1px solid #ffffff33;border-radius:14px;background:#fff;color:var(--ink);padding:15px;font-size:16px}
+.login-form select{width:100%;min-width:0;border:1px solid #ffffff33;border-radius:14px;background:#fff;color:var(--ink);padding:15px;font-size:16px}
 .login-form button,.login-sent button{border:0;border-radius:14px;background:var(--coral);color:#fff;padding:15px;font-weight:900}
 .login-form button:disabled{opacity:.55}
+.login-form label{font-size:13px;font-weight:800;color:#cbd1db;text-align:left}
 .login-sent{max-width:440px;margin:26px auto 0;padding:20px;border:1px solid #ffffff22;border-radius:16px;background:#222936}
 .login-sent p{color:#aeb4bf;font-size:13px}
 .login-sent button{padding:10px 14px;background:#ffffff18}
+.registration-code{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.registration-code button{padding-inline:14px}
+.login-form .login-switch{background:transparent;border:1px solid #ffffff33;color:#fff;padding:11px}
+.login-note{margin:18px 0 0!important;font-size:12px!important;color:#929aa8!important;text-align:center}
+@media(max-width:380px){.registration-code{grid-template-columns:1fr}}

@@ -1,43 +1,78 @@
 import {useState} from 'react';
 import {supabase} from './lib';
 
+type RegistrationOption={id:string;name:string;display_name:string|null};
+
 export default function Login({error}:{error:string}){
+  const [existing,setExisting]=useState(false);
+  const [code,setCode]=useState('');
+  const [options,setOptions]=useState<RegistrationOption[]>([]);
+  const [memberId,setMemberId]=useState('');
   const [email,setEmail]=useState('');
   const [sent,setSent]=useState(false);
   const [busy,setBusy]=useState(false);
   const [localError,setLocalError]=useState('');
 
+  const checkCode=async()=>{
+    if(!code.trim())return;
+    setBusy(true);setLocalError('');
+    const result=await supabase.rpc('get_registration_options',{p_code:code.trim()});
+    setBusy(false);
+    if(result.error||!result.data?.length){
+      setLocalError(result.error?'店舗コードを確認できませんでした。':'登録できる名前がありません。店舗コードが違うか、全員の登録が完了しています。');
+      return;
+    }
+    setOptions(result.data as RegistrationOption[]);
+    setMemberId(result.data[0].id);
+  };
+
   const send=async()=>{
-    if(!email.trim())return;
-    setBusy(true);
-    setLocalError('');
+    const normalizedEmail=email.trim().toLowerCase();
+    if(!normalizedEmail)return;
+    if(!existing&&!memberId){setLocalError('自分の名前を選択してください。');return}
+    setBusy(true);setLocalError('');
+    if(!existing)localStorage.setItem('shiftcal-pending-registration',JSON.stringify({memberId,code:code.trim()}));
+    const redirect=new URL(location.origin);
+    if(!existing){redirect.searchParams.set('register_member',memberId);redirect.searchParams.set('register_code',code.trim())}
     const result=await supabase.auth.signInWithOtp({
-      email:email.trim().toLowerCase(),
-      options:{shouldCreateUser:true,emailRedirectTo:location.origin}
+      email:normalizedEmail,
+      options:{shouldCreateUser:true,emailRedirectTo:redirect.toString()}
     });
     setBusy(false);
     if(result.error){
-      setLocalError(result.error.message.includes('rate limit')
-        ?'メール送信の上限に達しました。少し時間をおいて再度お試しください。'
-        :result.error.message);
+      if(!existing)localStorage.removeItem('shiftcal-pending-registration');
+      setLocalError(result.error.message.toLowerCase().includes('rate limit')
+        ?'メール送信が上限に達しました。少し時間を空けて、もう一度お試しください。'
+        :'ログインメールを送信できませんでした。メールアドレスを確認してください。');
       return;
     }
     setSent(true);
   };
 
+  const switchMode=()=>{
+    setExisting(value=>!value);setLocalError('');setOptions([]);setMemberId('');setCode('');setSent(false);
+  };
+
   return <div className="identity"><div className="identity-card">
     <span className="logo">S</span>
     <p className="eyebrow">シフト共有カレンダー</p>
-    <h1>メールでログイン</h1>
-    <p>登録済みのメールアドレスへログインリンクを送ります。同じ端末では通常、初回だけで大丈夫です。</p>
+    <h1>{existing?'メールでログイン':'初回登録'}</h1>
+    <p>{existing?'登録済みのメールアドレスへログインリンクを送ります。':'店舗コードを確認し、自分の名前とメールアドレスを紐付けます。'}</p>
     {(error||localError)&&<div className="error">{error||localError}</div>}
     {sent?<div className="login-sent">
       <b>メールを送信しました</b>
-      <p>届いたメール内のリンクを開いてください。</p>
+      <p>届いたメール内のリンクを、この端末で開いてください。</p>
       <button onClick={()=>setSent(false)}>メールアドレスを変更</button>
     </div>:<div className="login-form">
-      <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com" autoComplete="email"/>
-      <button disabled={busy||!email.trim()} onClick={()=>void send()}>{busy?'送信中…':'ログインリンクを送信'}</button>
+      {!existing&&<>
+        {options.length===0
+          ?<div className="registration-code"><input inputMode="numeric" maxLength={12} value={code} onChange={e=>setCode(e.target.value)} placeholder="店舗コード"/><button disabled={busy||!code.trim()} onClick={()=>void checkCode()}>{busy?'確認中…':'コードを確認'}</button></div>
+          :<><label>自分の名前</label><select value={memberId} onChange={e=>setMemberId(e.target.value)}>{options.map(option=><option value={option.id} key={option.id}>{option.display_name?.trim()||option.name}</option>)}</select></>}
+      </>}
+      {(existing||options.length>0)&&<><label>メールアドレス</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com" autoComplete="email"/></>}
+      {(existing||options.length>0)&&<button disabled={busy||!email.trim()} onClick={()=>void send()}>{busy?'送信中…':'ログインリンクを送信'}</button>}
+      <button className="login-switch" onClick={switchMode}>{existing?'初めて利用する方':'登録済みの方はこちら'}</button>
     </div>}
+    <p className="login-note">メールアドレスは他のメンバーには表示されません。</p>
   </div></div>;
 }
