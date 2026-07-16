@@ -1,4 +1,4 @@
--- シフカレ v2 非破壊マイグレーション
+-- シフト共有カレンダー v2 非破壊マイグレーション
 -- 既存の members / shifts / shift_history の行は削除しません。
 -- Supabase SQL Editor で全文を1回実行してください。
 
