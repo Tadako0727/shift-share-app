@@ -4,6 +4,7 @@ export const configured=Boolean(url&&key);
 export const supabase=createClient(url||'https://example.supabase.co',key||'missing',{auth:{persistSession:true,autoRefreshToken:true}});
 export type Member={id:string;name:string;display_name:string|null;is_host:boolean};
 export type Shift={id:string;member_id:string;shift_date:string;start_time:string;end_time:string;created_at?:string;updated_at?:string};
+export type ClosedDay={closed_date:string;label:string;kind:'holiday'|'temporary'};
 export type History={id:number;action:'insert'|'update'|'delete';actor_member_id:string|null;member_id:string|null;member_name:string|null;old_data:Shift|null;new_data:Shift|null;created_at:string};
 export const shownName=(m?:Member)=>m?.display_name?.trim()||m?.name||'未登録';
 export const min=(t:string)=>{const [h,m]=t.slice(0,5).split(':').map(Number);return h*60+m};
