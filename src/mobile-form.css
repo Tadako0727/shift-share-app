@@ -1,0 +1,21 @@
+.form input,.form select,.form textarea,.inline input{min-width:0;max-width:100%;font-size:16px}
+.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.two label{min-width:0;display:grid;gap:5px}
+.two input[type="time"]{display:block;width:100%;min-width:0;padding:11px 8px;line-height:1.2}
+.inline{align-items:stretch}
+.inline input{flex:1 1 auto}
+.inline button{flex:0 0 auto;min-width:72px;white-space:nowrap;padding:0 14px}
+.closed-banner{display:flex;align-items:center;gap:12px;background:#fff0eb;border:1px solid #ffb49f;color:#a53b22;border-radius:18px;padding:16px 18px;margin:14px 0;font-weight:900}
+.closed-banner svg{flex:0 0 auto}
+.closed-dot{background:#ffe5de!important;color:#a53b22!important}
+.closed-action{margin-top:12px;background:#fff0eb!important;color:#a53b22!important}
+@media(max-width:480px){
+ .modal{padding:16px;padding-bottom:max(18px,env(safe-area-inset-bottom));border-radius:22px 22px 0 0}
+ .modal-head h2{font-size:20px;margin:12px 0 18px}
+ .form{gap:12px}
+ .form input,.form select,.form textarea{padding:11px 10px}
+ .two{gap:7px}
+ .two label{font-size:11px}
+ .primary.wide,.delete.wide{min-height:50px}
+}
+@media(max-width:350px){.two{grid-template-columns:1fr}}
