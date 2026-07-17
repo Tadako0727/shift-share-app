@@ -7,6 +7,9 @@
 .login-sent{max-width:440px;margin:26px auto 0;padding:20px;border:1px solid #ffffff22;border-radius:16px;background:#222936}
 .login-sent p{color:#aeb4bf;font-size:13px}
 .login-sent button{padding:10px 14px;background:#ffffff18}
+.otp-form{display:grid;gap:10px}
+.otp-form input{width:100%;border:1px solid #ffffff33;border-radius:14px;background:#fff;color:var(--ink);padding:15px;text-align:center;font-size:24px;font-weight:900;letter-spacing:.3em}
+.otp-form button:disabled{opacity:.55}
 .registration-code{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
 .registration-code button{padding-inline:14px}
 .login-form .login-switch{background:transparent;border:1px solid #ffffff33;color:#fff;padding:11px}

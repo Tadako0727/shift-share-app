@@ -9,6 +9,7 @@ export default function Login({error}:{error:string}){
   const [options,setOptions]=useState<RegistrationOption[]>([]);
   const [memberId,setMemberId]=useState('');
   const [email,setEmail]=useState('');
+  const [otp,setOtp]=useState('');
   const [sent,setSent]=useState(false);
   const [busy,setBusy]=useState(false);
   const [localError,setLocalError]=useState('');
@@ -32,11 +33,9 @@ export default function Login({error}:{error:string}){
     if(!existing&&!memberId){setLocalError('自分の名前を選択してください。');return}
     setBusy(true);setLocalError('');
     if(!existing)localStorage.setItem('shiftcal-pending-registration',JSON.stringify({memberId,code:code.trim()}));
-    const redirect=new URL(location.origin);
-    if(!existing){redirect.searchParams.set('register_member',memberId);redirect.searchParams.set('register_code',code.trim())}
     const result=await supabase.auth.signInWithOtp({
       email:normalizedEmail,
-      options:{shouldCreateUser:true,emailRedirectTo:redirect.toString()}
+      options:{shouldCreateUser:true}
     });
     setBusy(false);
     if(result.error){
@@ -49,6 +48,14 @@ export default function Login({error}:{error:string}){
     setSent(true);
   };
 
+  const verify=async()=>{
+    if(otp.length!==6)return;
+    setBusy(true);setLocalError('');
+    const result=await supabase.auth.verifyOtp({email:email.trim().toLowerCase(),token:otp,type:'email'});
+    setBusy(false);
+    if(result.error){setLocalError('認証コードが違うか、有効期限が切れています。');return}
+  };
+
   const switchMode=()=>{
     setExisting(value=>!value);setLocalError('');setOptions([]);setMemberId('');setCode('');setSent(false);
   };
@@ -57,12 +64,14 @@ export default function Login({error}:{error:string}){
     <span className="logo">S</span>
     <p className="eyebrow">シフト共有カレンダー</p>
     <h1>{existing?'メールでログイン':'初回登録'}</h1>
-    <p>{existing?'登録済みのメールアドレスへログインリンクを送ります。':'店舗コードを確認し、自分の名前とメールアドレスを紐付けます。'}</p>
+    <p>{existing?'登録済みのメールアドレスへ6桁の認証コードを送ります。':'店舗コードを確認し、自分の名前とメールアドレスを紐付けます。'}</p>
     {(error||localError)&&<div className="error">{error||localError}</div>}
-    {sent?<div className="login-sent">
-      <b>メールを送信しました</b>
-      <p>届いたメール内のリンクを、この端末で開いてください。</p>
-      <button onClick={()=>setSent(false)}>メールアドレスを変更</button>
+    {sent?<div className="login-sent otp-form">
+      <b>6桁の認証コードを送信しました</b>
+      <p>メールに記載された数字を、この画面へ入力してください。</p>
+      <input inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="123456"/>
+      <button disabled={busy||otp.length!==6} onClick={()=>void verify()}>{busy?'確認中…':'認証してログイン'}</button>
+      <button className="login-switch" onClick={()=>{setSent(false);setOtp('')}}>メールアドレスを変更</button>
     </div>:<div className="login-form">
       {!existing&&<>
         {options.length===0
@@ -70,7 +79,7 @@ export default function Login({error}:{error:string}){
           :<><label>自分の名前</label><select value={memberId} onChange={e=>setMemberId(e.target.value)}>{options.map(option=><option value={option.id} key={option.id}>{option.display_name?.trim()||option.name}</option>)}</select></>}
       </>}
       {(existing||options.length>0)&&<><label>メールアドレス</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com" autoComplete="email"/></>}
-      {(existing||options.length>0)&&<button disabled={busy||!email.trim()} onClick={()=>void send()}>{busy?'送信中…':'ログインリンクを送信'}</button>}
+      {(existing||options.length>0)&&<button disabled={busy||!email.trim()} onClick={()=>void send()}>{busy?'送信中…':'6桁コードを送信'}</button>}
       <button className="login-switch" onClick={switchMode}>{existing?'初めて利用する方':'登録済みの方はこちら'}</button>
     </div>}
     <p className="login-note">メールアドレスは他のメンバーには表示されません。</p>
