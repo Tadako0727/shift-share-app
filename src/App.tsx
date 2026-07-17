@@ -1,10 +1,12 @@
 import {useEffect,useMemo,useState} from 'react';
-import {CalendarDays,ChevronLeft,ChevronRight,Clock3,History as HistoryIcon,Home,Settings,Users,UtensilsCrossed,Moon,AlertTriangle,X,Plus,Pencil,Trash2,Upload,CalendarOff,LogOut} from 'lucide-react';
+import {CalendarDays,ChevronLeft,ChevronRight,Clock3,History as HistoryIcon,Home,Settings,Users,UtensilsCrossed,Moon,AlertTriangle,X,Plus,Pencil,Trash2,Upload,CalendarOff,LogOut,HeartHandshake} from 'lucide-react';
 import {ClosedDay,configured,History,includesKind,localDate,Member,parseShiftBoard,serviceRange,Shift,shownName,supabase} from './lib';
 import Login from './Login';
+import Preferences from './Preferences';
 import './auth.css';
+import './preferences.css';
 
-type Tab='today'|'calendar'|'members'|'settings';
+type Tab='today'|'calendar'|'preferences'|'members'|'settings';
 type Draft={id?:string;member_id:string;shift_date:string;start_time:string;end_time:string};
 const MEMBER_KEY='shiftcal-member-id'; const EDIT_KEY='shiftcal-edit-mode';
 const jaDate=(s:string,detail=false)=>new Intl.DateTimeFormat('ja-JP',detail?{month:'long',day:'numeric',weekday:'short'}:{month:'numeric',day:'numeric',weekday:'short'}).format(new Date(`${s}T12:00:00`));
@@ -26,17 +28,18 @@ export default function App(){
  if(loading)return <div className="splash"><span className="logo">S</span><p>シフトを読み込んでいます</p></div>;
  if(!signedIn)return <Login error={error}/>;
  if(!me)return <div className="splash"><span className="logo">S</span><p>登録情報を確認しています</p></div>;
- const title=tab==='today'?'今日':tab==='calendar'?'カレンダー':tab==='members'?'メンバー':'設定';
+ const title=tab==='today'?'今日':tab==='calendar'?'カレンダー':tab==='preferences'?'希望シフト':tab==='members'?'メンバー':'設定';
  return <div className="app"><header><div><small>{new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'long'}).format(new Date())}</small><h1>{title}</h1></div><button className={`mode ${edit?'active':''}`} onClick={toggleEdit}>{edit?'変更モード中':'閲覧モード'}</button></header>
   {error&&<div className="error">{error}<button onClick={()=>setError('')}><X size={16}/></button></div>}
   <main>
    {tab==='today'&&<Today shifts={shifts} members={members} me={me} edit={edit} onEdit={setDraft} closed={closedDays.find(c=>c.closed_date===localDate())}/>}
    {tab==='calendar'&&<CalendarView month={month} setMonth={setMonth} shifts={shifts} closedDays={closedDays} onDay={setSelectedDate}/>}
+   {tab==='preferences'&&<Preferences memberId={me.id}/>}
    {tab==='members'&&<MembersView members={members} shifts={shifts} onMember={setSelectedMember}/>}
    {tab==='settings'&&<SettingsView me={me} members={members} history={auditHistory} edit={edit} onToggle={toggleEdit} onLogout={async()=>{sessionStorage.removeItem(EDIT_KEY);localStorage.removeItem(MEMBER_KEY);setEdit(false);setMeId('');await supabase.auth.signOut()}} onRename={async name=>{if(await call('set_display_name',{p_member_id:me.id,p_display_name:name}))return true;return false}}/>}
   </main>
   {edit&&<button className="fab" onClick={()=>setBulk(true)} aria-label="シフトを登録"><Plus/></button>}
-  <nav>{([{id:'today',icon:Home,label:'今日'},{id:'calendar',icon:CalendarDays,label:'カレンダー'},{id:'members',icon:Users,label:'メンバー'},{id:'settings',icon:Settings,label:'設定'}] as const).map(i=><button className={tab===i.id?'active':''} onClick={()=>setTab(i.id)} key={i.id}><i.icon/><span>{i.label}</span></button>)}</nav>
+  <nav>{([{id:'today',icon:Home,label:'今日'},{id:'calendar',icon:CalendarDays,label:'カレンダー'},{id:'preferences',icon:HeartHandshake,label:'希望'},{id:'members',icon:Users,label:'メンバー'},{id:'settings',icon:Settings,label:'設定'}] as const).map(i=><button className={tab===i.id?'active':''} onClick={()=>setTab(i.id)} key={i.id}><i.icon/><span>{i.label}</span></button>)}</nav>
   {selectedDate&&<DayModal date={selectedDate} shifts={shifts.filter(s=>s.shift_date===selectedDate)} members={members} edit={edit} closed={closedDays.find(c=>c.closed_date===selectedDate)} onClose={()=>setSelectedDate(null)} onEdit={setDraft} onCloseDay={async(label)=>{if(!me)return;const ok=await call('set_closed_day',{p_actor_member_id:me.id,p_closed_date:selectedDate,p_label:label});if(ok)setSelectedDate(null)}} onOpenDay={async()=>{if(!me)return;const ok=await call('delete_closed_day',{p_actor_member_id:me.id,p_closed_date:selectedDate});if(ok)setSelectedDate(null)}}/>}
   {selectedMember&&<MemberModal member={members.find(m=>m.id===selectedMember)!} shifts={shifts.filter(s=>s.member_id===selectedMember)} onClose={()=>setSelectedMember(null)}/>}
   {draft&&<ShiftModal draft={draft} members={members} onClose={()=>setDraft(null)} onSave={saveDraft} onDelete={remove}/>}
