@@ -8,7 +8,24 @@ export type ClosedDay={closed_date:string;label:string;kind:'holiday'|'temporary
 export type History={id:number;action:'insert'|'update'|'delete';actor_member_id:string|null;member_id:string|null;member_name:string|null;old_data:Shift|null;new_data:Shift|null;created_at:string};
 export const shownName=(m?:Member)=>m?.display_name?.trim()||m?.name||'未登録';
 export const min=(t:string)=>{const [h,m]=t.slice(0,5).split(':').map(Number);return h*60+m};
-export const kind=(s:Shift):'lunch'|'dinner'|'both'=>min(s.end_time)<=17*60?'lunch':min(s.start_time)>=17*60?'dinner':'both';
-export const includesKind=(s:Shift,k:'lunch'|'dinner')=>kind(s)===k||kind(s)==='both';
+export const serviceRange=(s:Shift,k:'lunch'|'dinner')=>{const start=min(s.start_time),end=min(s.end_time),open=k==='lunch'?11*60:17*60,close=k==='lunch'?15*60:24*60;if(start>=close||end<=open)return null;const from=Math.max(start,open),to=Math.min(end,close),format=(value:number)=>`${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;return {start:format(from),end:format(to)}};
+export const kind=(s:Shift):'lunch'|'dinner'|'both'=>serviceRange(s,'lunch')&&serviceRange(s,'dinner')?'both':serviceRange(s,'dinner')?'dinner':'lunch';
+export const includesKind=(s:Shift,k:'lunch'|'dinner')=>serviceRange(s,k)!==null;
 export const localDate=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-export function parseShiftBoard(text:string,year:number,memberId:string){const rows:Omit<Shift,'id'>[]=[];const re=/(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*[（(][^）)]*[）)])?\s*(\d{1,2}:\d{2})\s*[-–—〜~]\s*(\d{1,2}:\d{2})/;for(const line of text.split(/\r?\n/)){const m=line.match(re);if(m)rows.push({member_id:memberId,shift_date:`${year}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`,start_time:m[3],end_time:m[4]});}return rows;}
+export function parseShiftBoard(text:string,year:number,memberId:string){
+  const rows:Omit<Shift,'id'>[]=[];
+  const datePart=/(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*[（(][^）)]*[）)])?/;
+  const timed=/(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*[（(][^）)]*[）)])?\s*(\d{1,2}:\d{2})\s*[-–—〜~]\s*(\d{1,2}:\d{2})/;
+  for(const line of text.split(/\r?\n/)){
+    const timeMatch=line.match(timed);
+    if(timeMatch){
+      rows.push({member_id:memberId,shift_date:`${year}-${timeMatch[1].padStart(2,'0')}-${timeMatch[2].padStart(2,'0')}`,start_time:timeMatch[3],end_time:timeMatch[4]});
+      continue;
+    }
+    const dateMatch=line.match(datePart);
+    if(dateMatch&&/\u7d42\u65e5/.test(line)){
+      rows.push({member_id:memberId,shift_date:`${year}-${dateMatch[1].padStart(2,'0')}-${dateMatch[2].padStart(2,'0')}`,start_time:'11:00',end_time:'23:30'});
+    }
+  }
+  return rows;
+}
