@@ -9,8 +9,10 @@
 @media(max-width:420px){
  .swap-sheet{width:100%;padding:10px 14px max(18px,env(safe-area-inset-bottom));gap:12px}
  .swap-sheet h2{font-size:20px}
- .alternative-fields{grid-template-columns:minmax(0,1fr);gap:10px}
- .alternative-fields label:first-child{grid-column:auto}
+ .alternative-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px;padding:12px;background:#f0eee8;border-radius:14px}
+ .alternative-fields label:first-child{grid-column:1/-1}
+ .alternative-fields label{display:grid;gap:6px;font-size:11px}
+ .alternative-fields input[type="date"],.alternative-fields input[type="time"]{height:48px;margin:0;padding:10px 12px;border-radius:11px;background:#fff;font-size:16px;text-align:center}
  .swap-card{padding:13px}
  .swap-card-top{grid-template-columns:38px minmax(0,1fr);gap:9px}
  .swap-card-top>span{width:38px;height:38px}
@@ -20,4 +22,9 @@
  .candidate-list .approve{grid-column:2;justify-self:start}
  .candidate-title{gap:8px}
  .candidate-title button{flex:0 0 auto}
+}
+
+@media(max-width:340px){
+ .alternative-fields{grid-template-columns:minmax(0,1fr)}
+ .alternative-fields label:first-child{grid-column:auto}
 }
