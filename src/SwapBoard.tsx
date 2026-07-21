@@ -1,21 +1,19 @@
-import {useMemo,useState} from 'react';
+import {useEffect,useMemo,useState} from 'react';
 import {ArrowRightLeft,Check,Clock3,MessageSquareText,Plus,Trash2,UserCheck,X} from 'lucide-react';
 import type {Member,Shift} from './lib';
 import {localDate,shownName} from './lib';
+import {Candidate,readSwapRequests,saveSwapRequests,SwapRequest,SWAP_EVENT} from './swapStore';
 import './swaps.css';
 
-type Candidate={memberId:string;note:string;availableDate?:string;start?:string;end?:string;createdAt:string};
-type SwapRequest={id:string;shiftId:string;ownerId:string;reason:string;memo:string;status:'open'|'confirmed';approvedMemberId?:string;candidates:Candidate[];createdAt:string};
-const STORE='shiftcal-swap-requests-test-v1';
-const read=():SwapRequest[]=>{try{return JSON.parse(localStorage.getItem(STORE)||'[]') as SwapRequest[]}catch{return []}};
 const jaDate=(date:string)=>new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'short'}).format(new Date(`${date}T12:00:00`));
 const time=(value:string)=>value.slice(0,5);
 
 export default function SwapBoard({member,members,shifts}:{member:Member;members:Member[];shifts:Shift[]}){
-  const [requests,setRequests]=useState<SwapRequest[]>(read);
+  const [requests,setRequests]=useState<SwapRequest[]>(readSwapRequests);
   const [creating,setCreating]=useState(false);
   const [candidateFor,setCandidateFor]=useState<string|null>(null);
-  const save=(next:SwapRequest[])=>{setRequests(next);localStorage.setItem(STORE,JSON.stringify(next))};
+  useEffect(()=>{const update=(event:Event)=>setRequests((event as CustomEvent<SwapRequest[]>).detail);window.addEventListener(SWAP_EVENT,update);return()=>window.removeEventListener(SWAP_EVENT,update)},[]);
+  const save=(next:SwapRequest[])=>{setRequests(next);saveSwapRequests(next)};
   const shiftById=(id:string)=>shifts.find(s=>s.id===id);
   const upcoming=useMemo(()=>shifts.filter(s=>s.member_id===member.id&&s.shift_date>=localDate()).sort((a,b)=>a.shift_date.localeCompare(b.shift_date)||a.start_time.localeCompare(b.start_time)),[shifts,member.id]);
   const open=requests.filter(r=>r.status==='open'),confirmed=requests.filter(r=>r.status==='confirmed');
