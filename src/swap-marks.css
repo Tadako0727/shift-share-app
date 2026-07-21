@@ -11,3 +11,12 @@
 .swap-mark-editor .clear-swap{background:#eeeae2;color:#9c3d29}
 .shift-list>button>.shift-meta+svg{flex:0 0 auto}
 @media(max-width:380px){.shift-meta em{font-size:7px;padding:2px 4px}.swap-mark-editor>div{grid-template-columns:1fr}}
+.response-summary{display:flex;gap:7px;margin-top:12px}
+.response-summary span{border-radius:99px;padding:5px 9px;font-size:11px;font-weight:900}
+.response-summary .yes{background:#dcf3e2;color:#25713a}.response-summary .maybe{background:#fff1c8;color:#876100}.response-summary .no{background:#eee;color:#666}
+.response-symbol{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:900}
+.response-symbol.yes{background:#dcf3e2;color:#25713a}.response-symbol.maybe{background:#fff1c8;color:#876100}.response-symbol.no{background:#eee;color:#666}
+.swap-response-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.swap-response-options button{border:1px solid #d3cfc5;background:white;border-radius:13px;padding:10px 4px;display:grid;place-items:center;gap:2px}
+.swap-response-options b{font-size:24px}.swap-response-options span{font-size:10px;font-weight:900}
+.swap-response-options button.selected.yes{background:#dcf3e2;border-color:#67b77b;color:#25713a}.swap-response-options button.selected.maybe{background:#fff1c8;border-color:#e1b943;color:#876100}.swap-response-options button.selected.no{background:#eee;border-color:#999;color:#555}
