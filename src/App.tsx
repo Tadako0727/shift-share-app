@@ -35,7 +35,7 @@ export default function App(){
   <main>
    {tab==='today'&&<Today shifts={shifts} members={members} me={me} edit={edit} onEdit={setDraft} closed={closedDays.find(c=>c.closed_date===localDate())}/>}
    {tab==='calendar'&&<CalendarView month={month} setMonth={setMonth} shifts={shifts} closedDays={closedDays} onDay={setSelectedDate}/>}
-   {tab==='preferences'&&<Preferences memberId={me.id}/>}
+   {tab==='preferences'&&<Preferences member={me} members={members} shifts={shifts}/>}
    {tab==='members'&&<MembersView members={members} shifts={shifts} onMember={setSelectedMember}/>}
    {tab==='settings'&&<SettingsView me={me} members={members} history={auditHistory} edit={edit} onToggle={toggleEdit} onPayroll={()=>setPayrollOpen(true)} onLogout={async()=>{sessionStorage.removeItem(EDIT_KEY);localStorage.removeItem(MEMBER_KEY);setEdit(false);setMeId('');await supabase.auth.signOut()}} onRename={async name=>{if(await call('set_display_name',{p_member_id:me.id,p_display_name:name}))return true;return false}}/>}
   </main>
