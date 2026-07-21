@@ -20,6 +20,8 @@ function paidSegments(shift:Shift,excludeGap:boolean):[number,number][]{
 
 export default function PayrollSettings({member,shifts,onClose}:{member:Member;shifts:Shift[];onClose:()=>void}){
   const [settings,setSettings]=useState<Settings>(()=>loadSettings(member.id));
+  const [hourlyInput,setHourlyInput]=useState(()=>String(loadSettings(member.id).hourly));
+  const [premiumInput,setPremiumInput]=useState(()=>String(loadSettings(member.id).latePremium));
   const [breakInput,setBreakInput]=useState(()=>String(loadSettings(member.id).fixedBreak));
   const [transportInput,setTransportInput]=useState(()=>String(loadSettings(member.id).transport));
   const [month,setMonth]=useState(()=>new Date(new Date().getFullYear(),new Date().getMonth(),1));
@@ -42,7 +44,7 @@ export default function PayrollSettings({member,shifts,onClose}:{member:Member;s
     return {rows,regular,late,base,premium,transport,total:base+premium+transport};
   },[shifts,member.id,prefix,settings]);
   const change=<K extends keyof Settings>(key:K,value:Settings[K])=>{setSettings({...settings,[key]:value});setSaved(false)};
-  const save=()=>{const fixedBreak=Math.max(0,Number(breakInput||0)),transport=Math.max(0,Number(transportInput||0));const next={...settings,fixedBreak,transport};setSettings(next);setBreakInput(String(fixedBreak));setTransportInput(String(transport));localStorage.setItem(storageKey(member.id),JSON.stringify(next));setSaved(true)};
+  const save=()=>{const hourly=Math.max(0,Number(hourlyInput||0)),latePremium=Math.max(0,Number(premiumInput||0)),fixedBreak=Math.max(0,Number(breakInput||0)),transport=Math.max(0,Number(transportInput||0));const next={...settings,hourly,latePremium,fixedBreak,transport};setSettings(next);setHourlyInput(String(hourly));setPremiumInput(String(latePremium));setBreakInput(String(fixedBreak));setTransportInput(String(transport));localStorage.setItem(storageKey(member.id),JSON.stringify(next));setSaved(true)};
   const y=month.getFullYear(),m=month.getMonth();
   return <div className="payroll-backdrop" onMouseDown={e=>e.target===e.currentTarget&&onClose()}><section className="payroll-panel">
     <header><div><small>PAYROLL ESTIMATE · TEST</small><h2><Calculator/>給料計算設定</h2><p>{shownName(member)}さんの端末内だけに保存します。</p></div><button onClick={onClose}><X/></button></header>
@@ -50,8 +52,8 @@ export default function PayrollSettings({member,shifts,onClose}:{member:Member;s
     <div className="payroll-total"><small>確定シフトからの概算</small><strong>{money(result.total)}</strong><span>{result.rows.length}回勤務・{((result.regular+result.late)/60).toFixed(1)}時間</span></div>
     <div className="payroll-breakdown"><div><Clock3/><span>基本給</span><b>{money(result.base)}</b></div><div><span className="night-icon">深夜</span><span>深夜加算</span><b>{money(result.premium)}</b></div><div><TrainFront/><span>交通費</span><b>{money(result.transport)}</b></div></div>
     <div className="payroll-form">
-      <label>基本時給（円）<input type="number" min="0" step="10" value={settings.hourly} onChange={e=>change('hourly',Number(e.target.value))}/></label>
-      <label>22時以降の加算率（%）<input type="number" min="0" step="1" value={settings.latePremium} onChange={e=>change('latePremium',Number(e.target.value))}/></label>
+      <label>基本時給（円）<input type="text" inputMode="numeric" pattern="[0-9]*" value={hourlyInput} onFocus={e=>e.currentTarget.select()} onChange={e=>{const value=e.target.value.replace(/\D/g,'').slice(0,6);setHourlyInput(value);if(value!=='')change('hourly',Number(value));else setSaved(false)}} onBlur={()=>{if(hourlyInput===''){setHourlyInput('0');change('hourly',0)}}}/></label>
+      <label>22時以降の加算率（%）<input type="text" inputMode="numeric" pattern="[0-9]*" value={premiumInput} onFocus={e=>e.currentTarget.select()} onChange={e=>{const value=e.target.value.replace(/\D/g,'').slice(0,3);setPremiumInput(value);if(value!=='')change('latePremium',Number(value));else setSaved(false)}} onBlur={()=>{if(premiumInput===''){setPremiumInput('0');change('latePremium',0)}}}/></label>
       <label>1勤務あたりの交通費（円）<input type="text" inputMode="numeric" pattern="[0-9]*" value={transportInput} onFocus={e=>e.currentTarget.select()} onChange={e=>{const value=e.target.value.replace(/\D/g,'').slice(0,6);setTransportInput(value);if(value!=='')change('transport',Number(value));else setSaved(false)}} onBlur={()=>{if(transportInput===''){setTransportInput('0');change('transport',0)}}}/></label>
       <label>1勤務あたりの追加休憩（分）<input type="text" inputMode="numeric" pattern="[0-9]*" value={breakInput} onFocus={e=>e.currentTarget.select()} onChange={e=>{const value=e.target.value.replace(/\D/g,'').slice(0,4);setBreakInput(value);if(value!=='')change('fixedBreak',Number(value));else setSaved(false)}} onBlur={()=>{if(breakInput===''){setBreakInput('0');change('fixedBreak',0)}}}/></label>
       <label>勤務時間の端数処理<select value={settings.rounding} onChange={e=>change('rounding',Number(e.target.value) as Settings['rounding'])}><option value={1}>端数処理なし</option><option value={15}>15分単位で切り捨て</option><option value={30}>30分単位で切り捨て</option></select></label>
