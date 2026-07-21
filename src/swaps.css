@@ -5,9 +5,12 @@
 .swap-sheet input,.swap-sheet select,.swap-sheet textarea,.alternative-fields input{font-size:16px}
 .alternative-fields input[type="date"],.alternative-fields input[type="time"]{height:46px;padding:9px 8px}
 .response-summary{flex-wrap:wrap}
+.create-swap-scope{min-width:0;margin:0;border:1px solid #e2c2b5;background:#fff3ed;border-radius:15px;padding:12px}
+.create-swap-scope legend{padding:0 5px;font-size:11px;font-weight:900}
+.create-swap-scope .swap-custom-time{margin:2px 0 0}
 
 @media(max-width:420px){
- .swap-sheet{width:100%;padding:10px 14px max(18px,env(safe-area-inset-bottom));gap:12px}
+ .swap-sheet{width:100%;padding:10px 22px max(18px,env(safe-area-inset-bottom));gap:12px}
  .swap-sheet h2{font-size:20px}
  .alternative-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px;padding:12px;background:#f0eee8;border-radius:14px}
  .alternative-fields label:first-child{grid-column:1/-1}
@@ -25,6 +28,7 @@
 }
 
 @media(max-width:340px){
+ .swap-sheet{padding-left:16px;padding-right:16px}
  .alternative-fields{grid-template-columns:minmax(0,1fr)}
  .alternative-fields label:first-child{grid-column:auto}
 }

@@ -10,10 +10,11 @@
 .closed-dot{background:#ffe5de!important;color:#a53b22!important}
 .closed-action{margin-top:12px;background:#fff0eb!important;color:#a53b22!important}
 @media(max-width:480px){
- .modal{padding:16px;padding-bottom:max(18px,env(safe-area-inset-bottom));border-radius:22px 22px 0 0}
+ .modal{padding:16px 22px max(18px,env(safe-area-inset-bottom));border-radius:22px 22px 0 0}
  .modal-head h2{font-size:20px;margin:12px 0 18px}
  .form{gap:12px}
- .form input,.form select,.form textarea{padding:11px 10px}
+ .form input,.form select,.form textarea{padding:11px 12px}
+ .form input[type="date"],.form input[type="time"]{height:52px;padding-top:0;padding-bottom:0;line-height:52px;text-align:center}
  .two{grid-template-columns:minmax(0,1fr);gap:12px;width:100%}
  .two label{font-size:12px;width:100%;min-width:0}
  .two input[type="time"]{width:100%;min-width:0;max-width:100%}
@@ -37,7 +38,7 @@
 
 @media(max-width:340px){
  main{padding-left:8px;padding-right:8px}
- .modal{padding-left:12px;padding-right:12px}
+ .modal{padding-left:16px;padding-right:16px}
  .shift-list>button{grid-template-columns:42px 28px minmax(0,1fr) auto;gap:6px;padding:11px 8px}
 }
 
