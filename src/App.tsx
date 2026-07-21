@@ -2,12 +2,10 @@ import {useEffect,useMemo,useState} from 'react';
 import {CalendarDays,ChevronLeft,ChevronRight,Clock3,History as HistoryIcon,Home,Settings,Users,UtensilsCrossed,Moon,AlertTriangle,X,Plus,Pencil,Trash2,Upload,CalendarOff,LogOut,HeartHandshake,Calculator} from 'lucide-react';
 import {ClosedDay,configured,History,includesKind,localDate,Member,parseShiftBoard,serviceRange,Shift,shownName,supabase} from './lib';
 import Login from './Login';
-import Preferences from './Preferences';
-import {CandidateSheet} from './SwapBoard';
+import SwapBoard,{CandidateSheet} from './SwapBoard';
 import PayrollSettings from './PayrollSettings';
 import {Candidate,readSwapRequests,saveSwapRequests,SwapRequest,SwapScope,SWAP_EVENT} from './swapStore';
 import './auth.css';
-import './preferences.css';
 import './swap-marks.css';
 import './test-view.css';
 
@@ -38,19 +36,19 @@ export default function App(){
  if(loading)return <div className="splash"><span className="logo">S</span><p>シフトを読み込んでいます</p></div>;
  if(!signedIn)return <Login error={error}/>;
  if(!me)return <div className="splash"><span className="logo">S</span><p>登録情報を確認しています</p></div>;
- const title=tab==='today'?'今日':tab==='calendar'?'カレンダー':tab==='preferences'?'希望シフト':tab==='members'?'メンバー':'設定';
+ const title=tab==='today'?'今日':tab==='calendar'?'カレンダー':tab==='preferences'?'交代募集':tab==='members'?'メンバー':'設定';
  return <div className="app"><header><div><small>{new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'long'}).format(new Date())}</small><h1>{title}</h1></div><button className={`mode ${edit?'active':''}`} onClick={toggleEdit}>{simulating?'テスト閲覧中':edit?'変更モード中':'閲覧モード'}</button></header>
   <div className="test-account-switch"><label>テスト表示<select value={testViewId||meId} onChange={e=>{const id=e.target.value;sessionStorage.setItem(TEST_VIEW_KEY,id);setTestViewId(id===meId?'':id);sessionStorage.removeItem(EDIT_KEY);setEdit(false)}}>{members.map(m=><option key={m.id} value={m.id}>{shownName(m)}として表示</option>)}</select></label>{simulating&&<span>実際のログイン：{shownName(authMe)}・閲覧専用</span>}</div>
   {error&&<div className="error">{error}<button onClick={()=>setError('')}><X size={16}/></button></div>}
   <main>
    {tab==='today'&&<Today shifts={shifts} members={members} me={me} edit={edit} onEdit={setDraft} onCandidate={setCandidateFor} swapRequests={swapRequests} closed={closedDays.find(c=>c.closed_date===localDate())}/>}
    {tab==='calendar'&&<CalendarView month={month} setMonth={setMonth} shifts={shifts} swapRequests={swapRequests} closedDays={closedDays} onDay={setSelectedDate}/>}
-   {tab==='preferences'&&<Preferences member={me} members={members} shifts={shifts}/>}
+   {tab==='preferences'&&<SwapBoard member={me} members={members} shifts={shifts}/>}
    {tab==='members'&&<MembersView members={members} shifts={shifts} onMember={setSelectedMember}/>}
    {tab==='settings'&&authMe&&<SettingsView me={authMe} members={members} history={auditHistory} edit={edit} onToggle={toggleEdit} onPayroll={()=>setPayrollOpen(true)} onLogout={async()=>{sessionStorage.removeItem(EDIT_KEY);sessionStorage.removeItem(TEST_VIEW_KEY);localStorage.removeItem(MEMBER_KEY);setEdit(false);setMeId('');await supabase.auth.signOut()}} onRename={async name=>{if(await call('set_display_name',{p_member_id:authMe.id,p_display_name:name}))return true;return false}}/>}
   </main>
   {edit&&<button className="fab" onClick={()=>setBulk(true)} aria-label="シフトを登録"><Plus/></button>}
-  <nav>{([{id:'today',icon:Home,label:'今日'},{id:'calendar',icon:CalendarDays,label:'カレンダー'},{id:'preferences',icon:HeartHandshake,label:'希望'},{id:'members',icon:Users,label:'メンバー'},{id:'settings',icon:Settings,label:'設定'}] as const).map(i=><button className={tab===i.id?'active':''} onClick={()=>setTab(i.id)} key={i.id}><i.icon/><span>{i.label}</span></button>)}</nav>
+  <nav>{([{id:'today',icon:Home,label:'今日'},{id:'calendar',icon:CalendarDays,label:'カレンダー'},{id:'preferences',icon:HeartHandshake,label:'交代'},{id:'members',icon:Users,label:'メンバー'},{id:'settings',icon:Settings,label:'設定'}] as const).map(i=><button className={tab===i.id?'active':''} onClick={()=>setTab(i.id)} key={i.id}><i.icon/><span>{i.label}</span></button>)}</nav>
   {selectedDate&&<DayModal date={selectedDate} shifts={shifts.filter(s=>s.shift_date===selectedDate)} members={members} currentMemberId={me.id} edit={edit} swapRequests={swapRequests} closed={closedDays.find(c=>c.closed_date===selectedDate)} onClose={()=>setSelectedDate(null)} onEdit={setDraft} onCandidate={setCandidateFor} onCloseDay={async(label)=>{if(!me)return;const ok=await call('set_closed_day',{p_actor_member_id:me.id,p_closed_date:selectedDate,p_label:label});if(ok)setSelectedDate(null)}} onOpenDay={async()=>{if(!me)return;const ok=await call('delete_closed_day',{p_actor_member_id:me.id,p_closed_date:selectedDate});if(ok)setSelectedDate(null)}}/>}
   {selectedMember&&<MemberModal member={members.find(m=>m.id===selectedMember)!} shifts={shifts.filter(s=>s.member_id===selectedMember)} onClose={()=>setSelectedMember(null)}/>}
   {draft&&<ShiftModal draft={draft} members={members} currentMemberId={me.id} shiftReadOnly={simulating} swapRequest={draft.id?swapRequests.find(r=>r.shiftId===draft.id&&r.status==='open'):undefined} onSwap={(shiftId,memo,scope,swapStart,swapEnd)=>{const existing=swapRequests.find(r=>r.shiftId===shiftId&&r.status==='open');const next=existing?swapRequests.map(r=>r.id===existing.id?{...r,memo,scope,swapStart,swapEnd}:r):[{id:crypto.randomUUID(),shiftId,ownerId:me.id,scope,swapStart,swapEnd,reason:'',memo,status:'open' as const,candidates:[],createdAt:new Date().toISOString()},...swapRequests];saveSwapRequests(next);setSwapRequests(next)}} onClearSwap={shiftId=>{const next=swapRequests.filter(r=>!(r.shiftId===shiftId&&r.status==='open'));saveSwapRequests(next);setSwapRequests(next)}} onClose={()=>setDraft(null)} onSave={saveDraft} onDelete={remove}/>}
