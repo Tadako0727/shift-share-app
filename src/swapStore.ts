@@ -1,5 +1,5 @@
 export type SwapResponse='eager'|'yes'|'maybe'|'no';
-export type SwapScope='lunch'|'dinner'|'both'|'custom';
+export type SwapScope='lunch'|'dinner'|'either'|'both'|'custom';
 export type Candidate={memberId:string;response?:SwapResponse;note:string;availableDate?:string;start?:string;end?:string;createdAt:string};
 export type SwapRequest={id:string;shiftId:string;ownerId:string;scope?:SwapScope;swapStart?:string;swapEnd?:string;reason:string;memo:string;status:'open'|'confirmed';approvedMemberId?:string;candidates:Candidate[];createdAt:string};
 export const SWAP_STORE='shiftcal-swap-requests-test-v1';
