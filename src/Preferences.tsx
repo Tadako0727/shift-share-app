@@ -1,6 +1,7 @@
 import {useMemo,useState} from 'react';
 import {CalendarDays,ChevronLeft,ChevronRight,Link2,Save,Trash2} from 'lucide-react';
-import {localDate} from './lib';
+import {localDate,Member,Shift} from './lib';
+import SwapBoard from './SwapBoard';
 
 type PreferenceStatus='want'|'available'|'avoid'|'unavailable';
 type Period='lunch'|'dinner'|'both'|'custom';
@@ -17,7 +18,9 @@ function readPreferences(key:string):PreferenceMap{
   try{return JSON.parse(localStorage.getItem(key)||'{}') as PreferenceMap}catch{return {}}
 }
 
-export default function Preferences({memberId}:{memberId:string}){
+export default function Preferences({member,members,shifts}:{member:Member;members:Member[];shifts:Shift[]}){
+  const memberId=member.id;
+  const [section,setSection]=useState<'preferences'|'swaps'>('preferences');
   const storageKey=`shiftcal-preferences-test-${memberId}`;
   const [month,setMonth]=useState(()=>new Date(new Date().getFullYear(),new Date().getMonth()+1,1));
   const [items,setItems]=useState<PreferenceMap>(()=>readPreferences(storageKey));
@@ -43,6 +46,8 @@ export default function Preferences({memberId}:{memberId:string}){
   const anonymousCount=(date:string)=>{const day=Number(date.slice(-2));const base=(day*7)%5;return base+(items[date]&&items[date].status!=='unavailable'?1:0)};
 
   return <section className="preference-page">
+    <div className="adjustment-tabs"><button className={section==='preferences'?'active':''} onClick={()=>setSection('preferences')}>希望シフト</button><button className={section==='swaps'?'active':''} onClick={()=>setSection('swaps')}>交代募集</button></div>
+    {section==='swaps'?<SwapBoard member={member} members={members} shifts={shifts}/>:<>
     <div className="test-banner"><b>希望シフト・テスト版</b><span>この入力は現在この端末だけに保存され、本番シフトには影響しません。</span></div>
     <div className="preference-summary">
       <div><small>提出対象</small><b>{y}年{m+1}月分</b></div>
@@ -55,7 +60,7 @@ export default function Preferences({memberId}:{memberId:string}){
       <div className="preference-days">{days.map(d=>{const key=dateKey(d),pref=items[key],plan=plans[key as keyof typeof plans],count=anonymousCount(key);return <button key={key} className={`${d.getMonth()!==m?'outside':''} ${key===localDate()?'today':''} ${pref?`has-pref ${pref.status}`:''}`} onClick={()=>openDay(key)}><b>{d.getDate()}</b>{plan&&<span className="private-plan">予定あり</span>}{pref&&<span className="pref-mark">{statusLabel[pref.status]}</span>}<small>希望 {count}人</small>{pref?.pairWith&&<em>A/B</em>}</button>})}</div>
     </div>
     <div className="privacy-note"><CalendarDays/><span><b>Googleカレンダー表示の試作品</b>「予定あり」は本人だけに見えるダミー予定です。ほかのメンバーには予定名を公開しない想定です。</span></div>
-    {selected&&<PreferenceEditor date={selected} value={items[selected]} plan={plans[selected as keyof typeof plans]} onClose={()=>setSelected(null)} onPair={()=>{if(!items[selected])return;setPairFirst(selected);setSelected(null)}} onDelete={()=>{const next={...items};const paired=next[selected]?.pairWith;delete next[selected];if(paired&&next[paired])next[paired]={...next[paired],pairWith:undefined};saveAll(next);setSelected(null)}} onSave={value=>{saveAll({...items,[selected]:value});setSelected(null)}}/>}
+    {selected&&<PreferenceEditor date={selected} value={items[selected]} plan={plans[selected as keyof typeof plans]} onClose={()=>setSelected(null)} onPair={()=>{if(!items[selected])return;setPairFirst(selected);setSelected(null)}} onDelete={()=>{const next={...items};const paired=next[selected]?.pairWith;delete next[selected];if(paired&&next[paired])next[paired]={...next[paired],pairWith:undefined};saveAll(next);setSelected(null)}} onSave={value=>{saveAll({...items,[selected]:value});setSelected(null)}}/>}</>}
   </section>;
 }
 
