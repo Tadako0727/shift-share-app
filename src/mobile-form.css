@@ -17,6 +17,7 @@
  .form input[type="date"],.form input[type="time"]{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;width:calc(100% - 2px);min-width:0;max-width:calc(100% - 2px);height:42px;margin-left:1px;margin-right:1px;padding:0 8px;line-height:42px;text-align:center}
  .form input[type="date"]::-webkit-date-and-time-value,.form input[type="time"]::-webkit-date-and-time-value{text-align:center}
  .form input[type="date"]::-webkit-datetime-edit,.form input[type="time"]::-webkit-datetime-edit{display:flex;align-items:center;justify-content:center;height:100%;padding:0}
+ .form>label>input[type="date"]{box-sizing:border-box;width:calc(100vw - 44px);min-width:0;max-width:calc(100vw - 44px)}
  .two{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;padding:12px;background:#f0eee8;border-radius:14px;overflow:hidden}
  .two label{font-size:12px;width:100%;min-width:0}
  .two input[type="time"]{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;width:calc(100% - 2px);min-width:0;max-width:calc(100% - 2px);height:42px;margin:0 1px;padding:0 8px;line-height:42px;text-align:center}
@@ -47,6 +48,7 @@
 @media(max-width:340px){
  main{padding-left:8px;padding-right:8px}
  .modal{padding-left:16px;padding-right:16px}
+ .form>label>input[type="date"]{width:calc(100vw - 32px);max-width:calc(100vw - 32px)}
  .shift-list>button{grid-template-columns:42px 28px minmax(0,1fr) auto;gap:6px;padding:11px 8px}
 }
 
