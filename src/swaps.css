@@ -12,10 +12,10 @@
 @media(max-width:420px){
  .swap-sheet{width:100%;padding:10px 22px max(18px,env(safe-area-inset-bottom));gap:12px}
  .swap-sheet h2{font-size:20px}
- .alternative-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px;padding:10px;background:#f0eee8;border-radius:14px}
+ .alternative-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;padding:12px;background:#f0eee8;border-radius:14px;overflow:hidden}
  .alternative-fields label:first-child{grid-column:1/-1}
- .alternative-fields label{display:grid;gap:3px;font-size:11px}
- .alternative-fields input[type="date"],.alternative-fields input[type="time"]{height:42px;margin:0;padding:0 10px;border-radius:10px;background:#fff;font-size:16px;line-height:42px;text-align:center}
+ .alternative-fields label{display:grid;gap:4px;width:100%;min-width:0;max-width:100%;padding:1px;overflow:hidden;font-size:11px}
+ .alternative-fields input[type="date"],.alternative-fields input[type="time"]{-webkit-appearance:none;appearance:none;display:block;box-sizing:border-box;width:calc(100% - 2px);min-width:0;max-width:calc(100% - 2px);height:42px;margin:0 1px;padding:0 8px;border-radius:10px;background:#fff;font-size:16px;line-height:42px;text-align:center}
  .alternative-fields input[type="date"]::-webkit-date-and-time-value,.alternative-fields input[type="time"]::-webkit-date-and-time-value{text-align:center}
  .alternative-fields input[type="date"]::-webkit-datetime-edit,.alternative-fields input[type="time"]::-webkit-datetime-edit{display:flex;align-items:center;justify-content:center;height:100%;padding:0}
  .swap-card{padding:13px}
