@@ -9,7 +9,6 @@ export type History={id:number;action:'insert'|'update'|'delete';actor_member_id
 export const shownName=(m?:Member)=>m?.display_name?.trim()||m?.name||'未登録';
 export const min=(t:string)=>{const [h,m]=t.slice(0,5).split(':').map(Number);return h*60+m};
 export const serviceRange=(s:Shift,k:'lunch'|'dinner')=>{const start=min(s.start_time),end=min(s.end_time),open=k==='lunch'?11*60:17*60,close=k==='lunch'?15*60:24*60;if(start>=close||end<=open)return null;const from=Math.max(start,open),to=Math.min(end,close),format=(value:number)=>`${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;return {start:format(from),end:format(to)}};
-export const kind=(s:Shift):'lunch'|'dinner'|'both'=>serviceRange(s,'lunch')&&serviceRange(s,'dinner')?'both':serviceRange(s,'dinner')?'dinner':'lunch';
 export const includesKind=(s:Shift,k:'lunch'|'dinner')=>serviceRange(s,k)!==null;
 export const localDate=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 export function parseShiftBoard(text:string,year:number,memberId:string){
