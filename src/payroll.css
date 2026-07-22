@@ -44,7 +44,7 @@
 .payroll-period-error{margin:9px 0 0;color:#b43d2d;font-size:11px}
 @media(max-width:420px){.payroll-form{grid-template-columns:1fr}
 .payroll-check{grid-column:auto}
-.payroll-total strong{font-size:30px}.payroll-period-heading{display:grid;gap:2px}.payroll-period-fields{gap:6px}.payroll-period-fields input{height:56px;padding:0 4px;font-size:16px;line-height:56px}
+.payroll-total strong{font-size:30px}.payroll-period-heading{display:grid;gap:2px}.payroll-period-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.payroll-period-fields>span{display:none}.payroll-period-fields input{height:56px;padding:0 4px;font-size:16px;line-height:56px}
 }
 @media(min-width:700px){.payroll-backdrop{align-items:center}
 .payroll-panel{border-radius:26px}
