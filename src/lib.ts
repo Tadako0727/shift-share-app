@@ -12,6 +12,9 @@ export const serviceRange=(s:Shift,k:'lunch'|'dinner')=>{const start=min(s.start
 export const includesKind=(s:Shift,k:'lunch'|'dinner')=>serviceRange(s,k)!==null;
 export const localDate=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const cappedEndTime=(value:string)=>{const [hour,minute]=value.split(':').map(Number);return hour>=24?'24:00':`${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`};
+const splitServiceRow=(row:Omit<Shift,'id'>):Omit<Shift,'id'>[]=>min(row.start_time)<15*60&&min(row.end_time)>17*60
+  ?[{...row,end_time:'15:00'},{...row,start_time:'17:00'}]
+  :[row];
 export function parseShiftBoard(text:string,year:number,memberId:string){
   const rows:Omit<Shift,'id'>[]=[];
   const datePart=/(\d{1,2})\s*\/\s*(\d{1,2})(?:\s*[（(][^）)]*[）)])?/;
@@ -19,12 +22,12 @@ export function parseShiftBoard(text:string,year:number,memberId:string){
   for(const line of text.split(/\r?\n/)){
     const timeMatch=line.match(timed);
     if(timeMatch){
-      rows.push({member_id:memberId,shift_date:`${year}-${timeMatch[1].padStart(2,'0')}-${timeMatch[2].padStart(2,'0')}`,start_time:timeMatch[3],end_time:cappedEndTime(timeMatch[4])});
+      rows.push(...splitServiceRow({member_id:memberId,shift_date:`${year}-${timeMatch[1].padStart(2,'0')}-${timeMatch[2].padStart(2,'0')}`,start_time:timeMatch[3],end_time:cappedEndTime(timeMatch[4])}));
       continue;
     }
     const dateMatch=line.match(datePart);
     if(dateMatch&&/\u7d42\u65e5/.test(line)){
-      rows.push({member_id:memberId,shift_date:`${year}-${dateMatch[1].padStart(2,'0')}-${dateMatch[2].padStart(2,'0')}`,start_time:'11:00',end_time:'24:00'});
+      rows.push(...splitServiceRow({member_id:memberId,shift_date:`${year}-${dateMatch[1].padStart(2,'0')}-${dateMatch[2].padStart(2,'0')}`,start_time:'11:00',end_time:'24:00'}));
     }
   }
   return rows;
