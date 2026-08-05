@@ -317,3 +317,101 @@
     flex-basis:19px;
   }
 }
+
+/* ===== Calendar avatar final fix ===== */
+
+.cal-service>div{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  isolation:isolate;
+}
+
+/* 共通アバターを必ず真円にする */
+.member-avatar{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  box-sizing:border-box;
+  border-radius:50%!important;
+  position:relative;
+  padding:0;
+  line-height:1;
+}
+
+/* 画像なしの頭文字を中央配置 */
+.member-avatar>span{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  text-align:center;
+  line-height:1;
+}
+
+/* 画像も真円で中央切り抜き */
+.member-avatar>img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  min-width:100%;
+  min-height:100%;
+  display:block;
+  border-radius:50%!important;
+  object-fit:cover;
+  object-position:center;
+}
+
+/* カレンダー専用サイズ */
+.member-avatar.avatar-calendar{
+  width:20px;
+  height:20px;
+  min-width:20px;
+  min-height:20px;
+  flex:0 0 20px;
+  margin-left:-6px;
+  border:2px solid #fff;
+  border-radius:50%!important;
+  background:#edf1f5;
+  font-size:8px;
+  font-weight:900;
+}
+
+/* 最初の人だけ通常位置 */
+.member-avatar.avatar-calendar:first-child{
+  margin-left:0;
+}
+
+/* 左の人が上に来る */
+.member-avatar.stack-0{z-index:5}
+.member-avatar.stack-1{z-index:4}
+.member-avatar.stack-2{z-index:3}
+.member-avatar.stack-3{z-index:2}
+
+/* 自分は真円の細い青枠 */
+.member-avatar.avatar-calendar.is-mine{
+  border:2px solid #5b8def;
+  border-radius:50%!important;
+  box-shadow:0 0 0 1px rgba(91,141,239,.18);
+}
+
+/* 昼と夜の間を少し空ける */
+.cal-service+.cal-service{
+  margin-top:8px;
+}
+
+@media(max-width:480px){
+  .member-avatar.avatar-calendar{
+    width:19px;
+    height:19px;
+    min-width:19px;
+    min-height:19px;
+    flex-basis:19px;
+    margin-left:-6px;
+    font-size:8px;
+  }
+}
