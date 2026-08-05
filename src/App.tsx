@@ -109,7 +109,7 @@ if(!me)return <div className="splash">
   {error&&<div className="error">{error}<button onClick={()=>setError('')}><X size={16}/></button></div>}
   <main>
    {tab==='today'&&<Today shifts={shifts} members={members} me={me} edit={edit} onEdit={setDraft} onCandidate={setCandidateFor} swapRequests={swapRequests} closed={closedDays.find(c=>c.closed_date===localDate())}/>}
-   {tab==='calendar'&&<CalendarView month={month} setMonth={setMonth} shifts={shifts} swapRequests={swapRequests} closedDays={closedDays} onDay={setSelectedDate}/>}
+{tab==='calendar'&&<CalendarView month={month} setMonth={setMonth} shifts={shifts} members={members} currentMemberId={me.id} swapRequests={swapRequests} closedDays={closedDays} onDay={setSelectedDate}/>}
    {tab==='preferences'&&<SwapBoard member={me} members={members} shifts={shifts} requests={swapRequests} onRefresh={setSwapRequests} onError={message=>setError(message)}/>}
    {tab==='members'&&<MembersView members={members} shifts={shifts} onMember={setSelectedMember}/>}
    {tab==='settings'&&authMe&&<SettingsView me={authMe} members={members} history={auditHistory} edit={edit} onToggle={toggleEdit} onPayroll={()=>setPayrollOpen(true)} onLogout={async()=>{sessionStorage.removeItem(EDIT_KEY);localStorage.removeItem(MEMBER_KEY);setEdit(false);setMeId('');await supabase.auth.signOut()}} onRename={async name=>{if(await call('set_display_name',{p_member_id:authMe.id,p_display_name:name}))return true;return false}}/>}
@@ -138,7 +138,29 @@ function NextShift({shifts,members,me}:{shifts:Shift[];members:Member[];me:Membe
  return <section className="next-shift"><div className="next-title"><Clock3/><div><small>NEXT SHIFT</small><h2>次の出勤：{jaDate(mine.shift_date,true)}</h2><p>{mine.start_time.slice(0,5)} — {mine.end_time.slice(0,5)}</p></div></div><div className="next-crew"><small>その日にいる人</small>{crew.map(s=>{const overlaps=s.member_id===me.id||(s.start_time<mine.end_time&&mine.start_time<s.end_time);return <div key={s.id} className={overlaps?'':'not-overlapping'}><time>{s.start_time.slice(0,5)}</time><span className="avatar">{shownName(members.find(m=>m.id===s.member_id)).slice(0,1)}</span><b>{shownName(members.find(m=>m.id===s.member_id))}</b><em>{s.end_time.slice(0,5)}まで</em></div>})}</div></section>
 }
 function OverlapRanking({shifts,members,me}:{shifts:Shift[];members:Member[];me:Member}){const prefix=localDate().slice(0,7),mine=shifts.filter(s=>s.member_id===me.id&&s.shift_date.startsWith(prefix)),seen=new Set<string>(),counts=new Map<string,number>();for(const own of mine){for(const other of shifts.filter(s=>s.member_id!==me.id&&s.shift_date===own.shift_date)){for(const type of ['lunch','dinner'] as const){const a=serviceRange(own,type),b=serviceRange(other,type);if(!a||!b||a.start>=b.end||b.start>=a.end)continue;const key=`${own.shift_date}-${type}-${other.member_id}`;if(seen.has(key))continue;seen.add(key);counts.set(other.member_id,(counts.get(other.member_id)||0)+1)}}}const ranking=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,5);return <section className="overlap-ranking"><div className="overlap-title"><small>TOGETHER THIS MONTH</small><h2>{shownName(me)}さんとよく一緒になる人</h2><p>同じ営業枠で勤務時間が重なった回数</p></div>{ranking.length?<ol>{ranking.map(([id,count],index)=><li key={id}><strong>{index+1}</strong><span className="avatar">{shownName(members.find(m=>m.id===id)).slice(0,1)}</span><b>{shownName(members.find(m=>m.id===id))}</b><em>{count}回</em></li>)}</ol>:<div className="empty">今月の重なりはまだありません</div>}</section>}
-function CalendarView({month,setMonth,shifts,swapRequests,closedDays,onDay}:{month:Date;setMonth:(d:Date)=>void;shifts:Shift[];swapRequests:SwapRequest[];closedDays:ClosedDay[];onDay:(d:string)=>void}){const y=month.getFullYear(),m=month.getMonth(),start=new Date(y,m,1-new Date(y,m,1).getDay());const days=Array.from({length:42},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d});return <section className="calendar-card"><div className="month-head"><button onClick={()=>setMonth(new Date(y,m-1,1))}><ChevronLeft/></button><h2>{y}年 {m+1}月</h2><button onClick={()=>setMonth(new Date(y,m+1,1))}><ChevronRight/></button></div><div className="week">{'日月火水木金土'.split('').map(x=><span key={x}>{x}</span>)}</div><div className="calendar">{days.map(d=>{const ds=localDate(d),closed=closedDays.find(c=>c.closed_date===ds),rows=shifts.filter(s=>s.shift_date===ds),l=rows.filter(s=>includesKind(s,'lunch')).length,n=rows.filter(s=>includesKind(s,'dinner')).length,swapping=rows.some(s=>swapRequests.some(r=>r.shiftId===s.id&&r.status==='open'));return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===localDate()?'today':''}`} onClick={()=>onDay(ds)}><b>{d.getDate()}</b>{closed?<span className="closed-dot">休業</span>:<>{l>0&&<span className="lunch-dot">昼 {l}</span>}{n>0&&<span className="dinner-dot">夜 {n}</span>}{swapping&&<span className="swap-dot">交代</span>}</>}</button>})}</div></section>}
+function CalendarView({month,setMonth,shifts,members,currentMemberId,swapRequests,closedDays,onDay}:{month:Date;setMonth:(d:Date)=>void;shifts:Shift[];members:Member[];currentMemberId:string;swapRequests:SwapRequest[];closedDays:ClosedDay[];onDay:(d:string)=>void}){
+ const y=month.getFullYear(),m=month.getMonth(),start=new Date(y,m,1-new Date(y,m,1).getDay());
+ const days=Array.from({length:42},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d});
+ const avatar=(s:Shift)=>{const mem=members.find(x=>x.id===s.member_id),mine=s.member_id===currentMemberId;return <span key={s.id} className={`cal-avatar ${mine?'mine':''}`}>{mem?.avatar_url?<img src={mem.avatar_url} alt=""/>:shownName(mem).slice(0,1)}</span>};
+ return <section className="calendar-card">
+  <div className="month-head"><button onClick={()=>setMonth(new Date(y,m-1,1))}><ChevronLeft/></button><h2>{y}年 {m+1}月</h2><button onClick={()=>setMonth(new Date(y,m+1,1))}><ChevronRight/></button></div>
+  <div className="week">{'日月火水木金土'.split('').map(x=><span key={x}>{x}</span>)}</div>
+  <div className="calendar">{days.map(d=>{
+   const ds=localDate(d),closed=closedDays.find(c=>c.closed_date===ds),rows=shifts.filter(s=>s.shift_date===ds);
+   const lunch=rows.filter(s=>includesKind(s,'lunch')),dinner=rows.filter(s=>includesKind(s,'dinner'));
+   const swapping=rows.some(s=>swapRequests.some(r=>r.shiftId===s.id&&r.status==='open'));
+   const mine=rows.some(s=>s.member_id===currentMemberId);
+   return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===localDate()?'today':''} ${mine?'has-my-shift':''}`} onClick={()=>onDay(ds)}>
+    <b>{d.getDate()}</b>
+    {closed?<span className="closed-dot">休業</span>:<>
+     {lunch.length>0&&<div className="cal-service"><small>昼</small><div>{lunch.slice(0,4).map(avatar)}{lunch.length>4&&<em>+{lunch.length-4}</em>}</div></div>}
+     {dinner.length>0&&<div className="cal-service"><small>夜</small><div>{dinner.slice(0,4).map(avatar)}{dinner.length>4&&<em>+{dinner.length-4}</em>}</div></div>}
+     {swapping&&<span className="swap-dot">交代</span>}
+    </>}
+   </button>
+  })}</div>
+ </section>
+}
 function MembersView({members,shifts,onMember}:{members:Member[];shifts:Shift[];onMember:(id:string)=>void}){const month=localDate().slice(0,7);return <section className="member-grid"><div className="section-title"><p>CREW</p><h2>メンバー一覧</h2></div>{members.map(m=><button key={m.id} onClick={()=>onMember(m.id)}><span className="big-avatar">{shownName(m).slice(0,1)}</span><div><h3>{shownName(m)}</h3>{m.is_host&&<small>HOST</small>}<p>{shifts.filter(s=>s.member_id===m.id&&s.shift_date.startsWith(month)).length} shifts this month</p></div><ChevronRight/></button>)}</section>}
 function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRename}:{me:Member;members:Member[];history:History[];edit:boolean;onToggle:()=>void;onPayroll:()=>void;onLogout:()=>Promise<void>;onRename:(s:string)=>Promise<boolean>}){
  const [name,setName]=useState(shownName(me));
