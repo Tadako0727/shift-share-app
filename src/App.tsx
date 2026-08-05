@@ -300,7 +300,10 @@ function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRen
 
  return <section className="settings-page">
   <div className="profile">
-   {me.avatar_url?<img className="big-avatar" src={me.avatar_url} alt={shownName(me)}/>:<span className="big-avatar">{shownName(me).slice(0,1)}</span>}
+  <MemberAvatar
+ member={me}
+ size="large"
+/>
    <small>現在の表示名</small><h2>{shownName(me)}</h2>
    <p>本人識別：{me.name}{me.is_host?' · ホスト':''}</p>
   </div>
@@ -357,8 +360,30 @@ function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRen
 
   <details className="history">
    <summary><HistoryIcon/>最近の変更履歴</summary>
-   {history.map(h=><div key={h.id}>
-    <b>{shownName(members.find(m=>m.id===h.actor_member_id))}</b>
+   {history.map(h=>{
+ const actor=members.find(m=>m.id===h.actor_member_id);
+
+ return <div key={h.id}>
+  <MemberAvatar member={actor}/>
+
+  <span className="history-text">
+   <b>{shownName(actor)}</b>
+   {' が '}
+   {h.member_name||'メンバー'}
+   {' のシフトを '}
+   {h.action==='insert'
+    ?'追加'
+    :h.action==='update'
+     ?'変更'
+     :'削除'
+   }
+
+   <small>
+    {new Date(h.created_at).toLocaleString('ja-JP')}
+   </small>
+  </span>
+ </div>;
+})}
     {' が '}{h.member_name||'メンバー'}{' のシフトを '}
     {h.action==='insert'?'追加':h.action==='update'?'変更':'削除'}
     <small>{new Date(h.created_at).toLocaleString('ja-JP')}</small>
@@ -375,7 +400,45 @@ function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRen
 }
 function Modal({children,onClose,title}:{children:React.ReactNode;onClose:()=>void;title:string}){return <div className="backdrop" onMouseDown={e=>e.target===e.currentTarget&&onClose()}><div className="modal"><div className="modal-head"><h2>{title}</h2><button onClick={onClose}><X/></button></div>{children}</div></div>}
 function DayModal({date,shifts,members,currentMemberId,edit,swapRequests,closed,onClose,onEdit,onCandidate,onCloseDay,onOpenDay}:{date:string;shifts:Shift[];members:Member[];currentMemberId:string;edit:boolean;swapRequests:SwapRequest[];closed?:ClosedDay;onClose:()=>void;onEdit:(d:Draft)=>void;onCandidate:(id:string)=>void;onCloseDay:(label:string)=>void;onOpenDay:()=>void}){return <Modal title={jaDate(date,true)} onClose={onClose}>{closed?<div className="closed-banner"><CalendarOff/><span>休業日（{closed.label}）</span></div>:<><ShiftList type="lunch" shifts={shifts} members={members} currentMemberId={currentMemberId} edit={edit} onEdit={onEdit} onCandidate={onCandidate} swapRequests={swapRequests}/><ShiftList type="dinner" shifts={shifts} members={members} currentMemberId={currentMemberId} edit={edit} onEdit={onEdit} onCandidate={onCandidate} swapRequests={swapRequests}/></>}{edit&&<>{!closed&&<button className="primary wide" onClick={()=>onEdit({member_id:members[0]?.id||'',shift_date:date,start_time:'11:00',end_time:'15:00'})}><Plus/>この日に追加</button>}{closed?<button className="delete wide closed-action" onClick={onOpenDay}>{closed.label}の休業を解除</button>:<button className="delete wide closed-action" onClick={()=>{const label=prompt('休業日の名前を入力してください','臨時休業');if(label?.trim())onCloseDay(label.trim())}}><CalendarOff/>休業日にする</button>}</>}</Modal>}
-function MemberModal({member,shifts,onClose}:{member:Member;shifts:Shift[];onClose:()=>void}){const prefix=localDate().slice(0,7);return <Modal title={shownName(member)} onClose={onClose}><p className="real-name">本人識別：{member.name}</p><div className="member-shifts">{shifts.filter(s=>s.shift_date.startsWith(prefix)).map(s=><div key={s.id}><b>{jaDate(s.shift_date)}</b><span>{s.start_time.slice(0,5)} — {s.end_time.slice(0,5)}</span></div>)}</div></Modal>}
+function function MemberModal({
+ member,
+ shifts,
+ onClose
+}:{
+ member:Member;
+ shifts:Shift[];
+ onClose:()=>void;
+}){
+ const prefix=localDate().slice(0,7);
+
+ return <Modal title={shownName(member)} onClose={onClose}>
+  <div className="member-modal-profile">
+   <MemberAvatar member={member} size="large"/>
+
+   <div>
+    <h3>{shownName(member)}</h3>
+    <p className="real-name">
+     本人識別：{member.name}
+    </p>
+   </div>
+  </div>
+
+  <div className="member-shifts">
+   {shifts
+    .filter(s=>s.shift_date.startsWith(prefix))
+    .map(s=>
+     <div key={s.id}>
+      <b>{jaDate(s.shift_date)}</b>
+      <span>
+       {s.start_time.slice(0,5)}
+       {' — '}
+       {s.end_time.slice(0,5)}
+      </span>
+     </div>
+    )}
+  </div>
+ </Modal>;
+}
 function ShiftModal({draft,members,currentMemberId,swapRequest,onSwap,onClearSwap,onClose,onSave,onDelete}:{draft:Draft;members:Member[];currentMemberId:string;swapRequest?:SwapRequest;onSwap:(shiftId:string,memo:string,scope:SwapScope,swapStart?:string,swapEnd?:string)=>void;onClearSwap:(shiftId:string)=>void;onClose:()=>void;onSave:(d:Draft)=>void;onDelete:(id:string)=>void}){
  const [d,setD]=useState(draft),[swapMemo,setSwapMemo]=useState(swapRequest?.memo||''),[swapEnabled,setSwapEnabled]=useState(Boolean(swapRequest));
  const own=d.member_id===currentMemberId,asShift={...d,id:d.id||''} as Shift,hasLunch=Boolean(serviceRange(asShift,'lunch')),hasDinner=Boolean(serviceRange(asShift,'dinner'));
