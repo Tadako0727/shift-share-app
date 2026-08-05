@@ -146,7 +146,16 @@ function OverlapRanking({shifts,members,me}:{shifts:Shift[];members:Member[];me:
 function CalendarView({month,setMonth,shifts,members,currentMemberId,swapRequests,closedDays,onDay}:{month:Date;setMonth:(d:Date)=>void;shifts:Shift[];members:Member[];currentMemberId:string;swapRequests:SwapRequest[];closedDays:ClosedDay[];onDay:(d:string)=>void}){
  const y=month.getFullYear(),m=month.getMonth(),start=new Date(y,m,1-new Date(y,m,1).getDay());
  const days=Array.from({length:42},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d});
- const avatar=(s:Shift)=>{const mem=members.find(x=>x.id===s.member_id),mine=s.member_id===currentMemberId;return <span key={s.id} className={`cal-avatar ${mine?'mine':''}`}>{mem?.avatar_url?<img src={mem.avatar_url} alt=""/>:shownName(mem).slice(0,1)}</span>};
+ const avatar=(s:Shift,index:number)=>{
+ const member=members.find(m=>m.id===s.member_id);
+ return <MemberAvatar
+  key={s.id}
+  member={member}
+  size="calendar"
+  mine={s.member_id===currentMemberId}
+  className={`stack-${index}`}
+ />
+};
  return <section className="calendar-card">
   <div className="month-head"><button onClick={()=>setMonth(new Date(y,m-1,1))}><ChevronLeft/></button><h2>{y}年 {m+1}月</h2><button onClick={()=>setMonth(new Date(y,m+1,1))}><ChevronRight/></button></div>
   <div className="week">{'日月火水木金土'.split('').map(x=><span key={x}>{x}</span>)}</div>
