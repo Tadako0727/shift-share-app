@@ -415,3 +415,14 @@
     font-size:8px;
   }
 }
+.member-grid .member-avatar.avatar-large{
+  width:52px;
+  height:52px;
+  min-width:52px;
+  min-height:52px;
+  flex:0 0 52px;
+}
+
+.member-grid .member-avatar.avatar-large.is-mine{
+  box-shadow:none;
+}
