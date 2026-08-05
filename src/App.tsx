@@ -137,7 +137,90 @@ function NextShift({shifts,members,me}:{shifts:Shift[];members:Member[];me:Membe
 function OverlapRanking({shifts,members,me}:{shifts:Shift[];members:Member[];me:Member}){const prefix=localDate().slice(0,7),mine=shifts.filter(s=>s.member_id===me.id&&s.shift_date.startsWith(prefix)),seen=new Set<string>(),counts=new Map<string,number>();for(const own of mine){for(const other of shifts.filter(s=>s.member_id!==me.id&&s.shift_date===own.shift_date)){for(const type of ['lunch','dinner'] as const){const a=serviceRange(own,type),b=serviceRange(other,type);if(!a||!b||a.start>=b.end||b.start>=a.end)continue;const key=`${own.shift_date}-${type}-${other.member_id}`;if(seen.has(key))continue;seen.add(key);counts.set(other.member_id,(counts.get(other.member_id)||0)+1)}}}const ranking=[...counts].sort((a,b)=>b[1]-a[1]).slice(0,5);return <section className="overlap-ranking"><div className="overlap-title"><small>TOGETHER THIS MONTH</small><h2>{shownName(me)}さんとよく一緒になる人</h2><p>同じ営業枠で勤務時間が重なった回数</p></div>{ranking.length?<ol>{ranking.map(([id,count],index)=><li key={id}><strong>{index+1}</strong><span className="avatar">{shownName(members.find(m=>m.id===id)).slice(0,1)}</span><b>{shownName(members.find(m=>m.id===id))}</b><em>{count}回</em></li>)}</ol>:<div className="empty">今月の重なりはまだありません</div>}</section>}
 function CalendarView({month,setMonth,shifts,swapRequests,closedDays,onDay}:{month:Date;setMonth:(d:Date)=>void;shifts:Shift[];swapRequests:SwapRequest[];closedDays:ClosedDay[];onDay:(d:string)=>void}){const y=month.getFullYear(),m=month.getMonth(),start=new Date(y,m,1-new Date(y,m,1).getDay());const days=Array.from({length:42},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);return d});return <section className="calendar-card"><div className="month-head"><button onClick={()=>setMonth(new Date(y,m-1,1))}><ChevronLeft/></button><h2>{y}年 {m+1}月</h2><button onClick={()=>setMonth(new Date(y,m+1,1))}><ChevronRight/></button></div><div className="week">{'日月火水木金土'.split('').map(x=><span key={x}>{x}</span>)}</div><div className="calendar">{days.map(d=>{const ds=localDate(d),closed=closedDays.find(c=>c.closed_date===ds),rows=shifts.filter(s=>s.shift_date===ds),l=rows.filter(s=>includesKind(s,'lunch')).length,n=rows.filter(s=>includesKind(s,'dinner')).length,swapping=rows.some(s=>swapRequests.some(r=>r.shiftId===s.id&&r.status==='open'));return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===localDate()?'today':''}`} onClick={()=>onDay(ds)}><b>{d.getDate()}</b>{closed?<span className="closed-dot">休業</span>:<>{l>0&&<span className="lunch-dot">昼 {l}</span>}{n>0&&<span className="dinner-dot">夜 {n}</span>}{swapping&&<span className="swap-dot">交代</span>}</>}</button>})}</div></section>}
 function MembersView({members,shifts,onMember}:{members:Member[];shifts:Shift[];onMember:(id:string)=>void}){const month=localDate().slice(0,7);return <section className="member-grid"><div className="section-title"><p>CREW</p><h2>メンバー一覧</h2></div>{members.map(m=><button key={m.id} onClick={()=>onMember(m.id)}><span className="big-avatar">{shownName(m).slice(0,1)}</span><div><h3>{shownName(m)}</h3>{m.is_host&&<small>HOST</small>}<p>{shifts.filter(s=>s.member_id===m.id&&s.shift_date.startsWith(month)).length} shifts this month</p></div><ChevronRight/></button>)}</section>}
-function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRename}:{me:Member;members:Member[];history:History[];edit:boolean;onToggle:()=>void;onPayroll:()=>void;onLogout:()=>Promise<void>;onRename:(s:string)=>Promise<boolean>}){const [name,setName]=useState(shownName(me));useEffect(()=>setName(shownName(me)),[me.id,me.name,me.display_name]);return <section className="settings-page"><div className="profile"><span className="big-avatar">{shownName(me).slice(0,1)}</span><small>現在の表示名</small><h2>{shownName(me)}</h2><p>本人識別：{me.name}{me.is_host?' · ホスト':''}</p></div><div className="setting-card"><label>表示名</label><div className="inline"><input value={name} maxLength={24} onChange={e=>setName(e.target.value)}/><button onClick={()=>void onRename(name)}>保存</button></div><p>ゲームのユーザー名のように、いつでも変更できます。</p></div><button className="setting-row" onClick={onPayroll}><Calculator/><div><b>給与計算</b><small>時給・深夜加算・交通費から概算</small></div></button><button className={`setting-row ${edit?'danger-row':''}`} onClick={onToggle}><Pencil/><div><b>{edit?'編集を終了':'編集に切り替え'}</b><small>全員分の追加・変更・削除</small></div></button><button className="setting-row logout-row" onClick={()=>void onLogout()}><LogOut/><div><b>ログアウト</b><small>この端末のログインを解除</small></div></button><details className="history"><summary><HistoryIcon/>最近の変更履歴</summary>{history.map(h=><div key={h.id}><b>{shownName(members.find(m=>m.id===h.actor_member_id))}</b> が {h.member_name||'メンバー'} のシフトを {h.action==='insert'?'追加':h.action==='update'?'変更':'削除'}<small>{new Date(h.created_at).toLocaleString('ja-JP')}</small></div>)}</details></section>}
+function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRename}:{me:Member;members:Member[];history:History[];edit:boolean;onToggle:()=>void;onPayroll:()=>void;onLogout:()=>Promise<void>;onRename:(s:string)=>Promise<boolean>}){
+ const [name,setName]=useState(shownName(me));
+ const [busy,setBusy]=useState(false);
+ const [avatarError,setAvatarError]=useState('');
+ useEffect(()=>setName(shownName(me)),[me.id,me.name,me.display_name]);
+
+ const uploadAvatar=async(file:File)=>{
+  if(file.size>5*1024*1024){setAvatarError('画像は5MB以下にしてください');return}
+  setBusy(true);setAvatarError('');
+  try{
+   const {data,error}=await supabase.auth.getUser();
+   if(error||!data.user)throw new Error('ログイン情報を確認できませんでした');
+   const path=`${data.user.id}/avatar`;
+   const up=await supabase.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
+   if(up.error)throw up.error;
+   const url=supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+   const save=await supabase.rpc('set_avatar_url',{p_member_id:me.id,p_avatar_url:`${url}?v=${Date.now()}`});
+   if(save.error)throw save.error;
+  }catch(e){setAvatarError(e instanceof Error?e.message:'画像を保存できませんでした')}
+  finally{setBusy(false)}
+ };
+
+ const deleteAvatar=async()=>{
+  if(!confirm('プロフィール画像を削除しますか？'))return;
+  setBusy(true);setAvatarError('');
+  try{
+   const {data,error}=await supabase.auth.getUser();
+   if(error||!data.user)throw new Error('ログイン情報を確認できませんでした');
+   const rm=await supabase.storage.from('avatars').remove([`${data.user.id}/avatar`]);
+   if(rm.error)throw rm.error;
+   const save=await supabase.rpc('set_avatar_url',{p_member_id:me.id,p_avatar_url:null});
+   if(save.error)throw save.error;
+  }catch(e){setAvatarError(e instanceof Error?e.message:'画像を削除できませんでした')}
+  finally{setBusy(false)}
+ };
+
+ return <section className="settings-page">
+  <div className="profile">
+   {me.avatar_url?<img className="big-avatar" src={me.avatar_url} alt={shownName(me)}/>:<span className="big-avatar">{shownName(me).slice(0,1)}</span>}
+   <small>現在の表示名</small><h2>{shownName(me)}</h2>
+   <p>本人識別：{me.name}{me.is_host?' · ホスト':''}</p>
+  </div>
+
+  <div className="setting-card">
+   <label>プロフィール画像</label>
+   <input id="avatar-input" type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} style={{display:'none'}} onChange={e=>{const f=e.target.files?.[0];if(f)void uploadAvatar(f);e.currentTarget.value=''}}/>
+   <div className="inline">
+    <button type="button" disabled={busy} onClick={()=>document.getElementById('avatar-input')?.click()}><Upload size={18}/>{busy?'処理中...':'画像を選択'}</button>
+    {me.avatar_url&&<button type="button" disabled={busy} onClick={()=>void deleteAvatar()}><Trash2 size={18}/>削除</button>}
+   </div>
+   {avatarError&&<p className="error">{avatarError}</p>}
+  </div>
+  <div className="setting-card">
+   <label>表示名</label>
+   <div className="inline">
+    <input value={name} maxLength={24} onChange={e=>setName(e.target.value)}/>
+    <button onClick={()=>void onRename(name)}>保存</button>
+   </div>
+   <p>ゲームのユーザー名のように、いつでも変更できます。</p>
+  </div>
+
+  <button className="setting-row" onClick={onPayroll}>
+   <Calculator/><div><b>給与計算</b><small>時給・深夜加算・交通費から概算</small></div>
+  </button>
+
+  <button className={`setting-row ${edit?'danger-row':''}`} onClick={onToggle}>
+   <Pencil/><div><b>{edit?'編集を終了':'編集に切り替え'}</b><small>全員分の追加・変更・削除</small></div>
+  </button>
+
+  <button className="setting-row logout-row" onClick={()=>void onLogout()}>
+   <LogOut/><div><b>ログアウト</b><small>この端末のログインを解除</small></div>
+  </button>
+
+  <details className="history">
+   <summary><HistoryIcon/>最近の変更履歴</summary>
+   {history.map(h=><div key={h.id}>
+    <b>{shownName(members.find(m=>m.id===h.actor_member_id))}</b>
+    {' が '}{h.member_name||'メンバー'}{' のシフトを '}
+    {h.action==='insert'?'追加':h.action==='update'?'変更':'削除'}
+    <small>{new Date(h.created_at).toLocaleString('ja-JP')}</small>
+   </div>)}
+  </details>
+ </section>
+}
 function Modal({children,onClose,title}:{children:React.ReactNode;onClose:()=>void;title:string}){return <div className="backdrop" onMouseDown={e=>e.target===e.currentTarget&&onClose()}><div className="modal"><div className="modal-head"><h2>{title}</h2><button onClick={onClose}><X/></button></div>{children}</div></div>}
 function DayModal({date,shifts,members,currentMemberId,edit,swapRequests,closed,onClose,onEdit,onCandidate,onCloseDay,onOpenDay}:{date:string;shifts:Shift[];members:Member[];currentMemberId:string;edit:boolean;swapRequests:SwapRequest[];closed?:ClosedDay;onClose:()=>void;onEdit:(d:Draft)=>void;onCandidate:(id:string)=>void;onCloseDay:(label:string)=>void;onOpenDay:()=>void}){return <Modal title={jaDate(date,true)} onClose={onClose}>{closed?<div className="closed-banner"><CalendarOff/><span>休業日（{closed.label}）</span></div>:<><ShiftList type="lunch" shifts={shifts} members={members} currentMemberId={currentMemberId} edit={edit} onEdit={onEdit} onCandidate={onCandidate} swapRequests={swapRequests}/><ShiftList type="dinner" shifts={shifts} members={members} currentMemberId={currentMemberId} edit={edit} onEdit={onEdit} onCandidate={onCandidate} swapRequests={swapRequests}/></>}{edit&&<>{!closed&&<button className="primary wide" onClick={()=>onEdit({member_id:members[0]?.id||'',shift_date:date,start_time:'11:00',end_time:'15:00'})}><Plus/>この日に追加</button>}{closed?<button className="delete wide closed-action" onClick={onOpenDay}>{closed.label}の休業を解除</button>:<button className="delete wide closed-action" onClick={()=>{const label=prompt('休業日の名前を入力してください','臨時休業');if(label?.trim())onCloseDay(label.trim())}}><CalendarOff/>休業日にする</button>}</>}</Modal>}
 function MemberModal({member,shifts,onClose}:{member:Member;shifts:Shift[];onClose:()=>void}){const prefix=localDate().slice(0,7);return <Modal title={shownName(member)} onClose={onClose}><p className="real-name">本人識別：{member.name}</p><div className="member-shifts">{shifts.filter(s=>s.shift_date.startsWith(prefix)).map(s=><div key={s.id}><b>{jaDate(s.shift_date)}</b><span>{s.start_time.slice(0,5)} — {s.end_time.slice(0,5)}</span></div>)}</div></Modal>}
