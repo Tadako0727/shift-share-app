@@ -7,6 +7,7 @@ import PayrollSettings from './PayrollSettings';
 import {Candidate,createSwapRequest,deleteSwapRequest,readSwapRequests,saveCandidate,SwapRequest,SwapScope,SWAP_EVENT,updateSwapRequest} from './swapStore';
 import './auth.css';
 import './swap-marks.css';
+import AvatarCropper from './AvatarCropper';
 
 type Tab='today'|'calendar'|'preferences'|'members'|'settings';
 type Draft={id?:string;member_id:string;shift_date:string;start_time:string;end_time:string};
@@ -180,23 +181,55 @@ function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRen
  const [name,setName]=useState(shownName(me));
  const [busy,setBusy]=useState(false);
  const [avatarError,setAvatarError]=useState('');
+ const [cropFile,setCropFile]=useState<File|null>(null);
  useEffect(()=>setName(shownName(me)),[me.id,me.name,me.display_name]);
 
- const uploadAvatar=async(file:File)=>{
-  if(file.size>5*1024*1024){setAvatarError('画像は5MB以下にしてください');return}
-  setBusy(true);setAvatarError('');
-  try{
-   const {data,error}=await supabase.auth.getUser();
-   if(error||!data.user)throw new Error('ログイン情報を確認できませんでした');
-   const path=`${data.user.id}/avatar`;
-   const up=await supabase.storage.from('avatars').upload(path,file,{upsert:true,contentType:file.type});
-   if(up.error)throw up.error;
-   const url=supabase.storage.from('avatars').getPublicUrl(path).data.publicUrl;
-   const save=await supabase.rpc('set_avatar_url',{p_member_id:me.id,p_avatar_url:`${url}?v=${Date.now()}`});
-   if(save.error)throw save.error;
-  }catch(e){setAvatarError(e instanceof Error?e.message:'画像を保存できませんでした')}
-  finally{setBusy(false)}
- };
+ const uploadAvatar=async(blob:Blob)=>{
+ setBusy(true);
+ setAvatarError('');
+
+ try{
+  const {data,error}=await supabase.auth.getUser();
+
+  if(error||!data.user){
+   throw new Error('ログイン情報を確認できませんでした');
+  }
+
+  const path=`${data.user.id}/avatar`;
+
+  const up=await supabase.storage
+   .from('avatars')
+   .upload(path,blob,{
+    upsert:true,
+    contentType:'image/webp',
+    cacheControl:'3600'
+   });
+
+  if(up.error)throw up.error;
+
+  const url=supabase.storage
+   .from('avatars')
+   .getPublicUrl(path)
+   .data.publicUrl;
+
+  const save=await supabase.rpc('set_avatar_url',{
+   p_member_id:me.id,
+   p_avatar_url:`${url}?v=${Date.now()}`
+  });
+
+  if(save.error)throw save.error;
+
+  setCropFile(null);
+ }catch(e){
+  setAvatarError(
+   e instanceof Error
+    ?e.message
+    :'画像を保存できませんでした'
+  );
+ }finally{
+  setBusy(false);
+ }
+};
 
  const deleteAvatar=async()=>{
   if(!confirm('プロフィール画像を削除しますか？'))return;
@@ -221,7 +254,27 @@ function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRen
 
   <div className="setting-card">
    <label>プロフィール画像</label>
-   <input id="avatar-input" type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} style={{display:'none'}} onChange={e=>{const f=e.target.files?.[0];if(f)void uploadAvatar(f);e.currentTarget.value=''}}/>
+  <input
+ id="avatar-input"
+ type="file"
+ accept="image/jpeg,image/png,image/webp"
+ disabled={busy}
+ style={{display:'none'}}
+ onChange={e=>{
+  const file=e.target.files?.[0];
+
+  if(file){
+   if(file.size>5*1024*1024){
+    setAvatarError('画像は5MB以下にしてください');
+   }else{
+    setAvatarError('');
+    setCropFile(file);
+   }
+  }
+
+  e.currentTarget.value='';
+ }}
+/>
    <div className="inline">
     <button type="button" disabled={busy} onClick={()=>document.getElementById('avatar-input')?.click()}><Upload size={18}/>{busy?'処理中...':'画像を選択'}</button>
     {me.avatar_url&&<button type="button" disabled={busy} onClick={()=>void deleteAvatar()}><Trash2 size={18}/>削除</button>}
@@ -258,6 +311,13 @@ function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRen
     <small>{new Date(h.created_at).toLocaleString('ja-JP')}</small>
    </div>)}
   </details>
+  {cropFile&&
+ <AvatarCropper
+  file={cropFile}
+  onCancel={()=>setCropFile(null)}
+  onSave={blob=>void uploadAvatar(blob)}
+ />
+}
  </section>
 }
 function Modal({children,onClose,title}:{children:React.ReactNode;onClose:()=>void;title:string}){return <div className="backdrop" onMouseDown={e=>e.target===e.currentTarget&&onClose()}><div className="modal"><div className="modal-head"><h2>{title}</h2><button onClick={onClose}><X/></button></div>{children}</div></div>}
