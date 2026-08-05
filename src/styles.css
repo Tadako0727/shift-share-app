@@ -124,3 +124,25 @@
     font-size:8px;
   }
 }
+.calendar>button{
+  align-items:flex-start;
+  text-align:left;
+  padding:8px 6px;
+}
+
+.calendar>button>b{
+  align-self:flex-start;
+}
+
+.cal-service{
+  width:100%;
+  justify-content:flex-start;
+}
+
+.cal-service>div{
+  justify-content:flex-start;
+}
+
+.calendar>button.today>b{
+  align-self:flex-start;
+}
