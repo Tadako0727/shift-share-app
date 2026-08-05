@@ -20,7 +20,40 @@ export default function App(){
  const [swapRequests,setSwapRequests]=useState<SwapRequest[]>([]);
  const authMe=members.find(m=>m.id===meId),me=authMe;
  const load=async()=>{const [m,s,h,c]=await Promise.all([supabase.from('members').select('id,name,display_name,is_host').order('name'),supabase.from('shifts').select('*').order('shift_date').order('start_time'),supabase.from('shift_history').select('*').order('created_at',{ascending:false}).limit(50),supabase.from('closed_days').select('closed_date,label,kind').order('closed_date')]);if(m.error||s.error||c.error){setError(m.error?.message||s.error?.message||c.error?.message||'読込に失敗しました');return}setMembers(m.data||[]);setShifts(s.data||[]);setHistory(h.data||[]);setClosedDays((c.data||[]) as ClosedDay[])};
- useEffect(()=>{let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){localStorage.removeItem('shiftcal-pending-registration');history.replaceState({},'',location.pathname);mine=await supabase.rpc('current_member_profile').maybeSingle();mineData=mine.data as Member|null}}}catch{localStorage.removeItem('shiftcal-pending-registration')}}if (mine.error || !mineData) {
+ useEffect(()=>{let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){const delays = [
+  500,
+  1000,
+  2000
+];
+
+for (const delay of delays) {
+  mine = await supabase
+    .rpc('current_member_profile')
+    .maybeSingle();
+
+  mineData =
+    mine.data as Member | null;
+
+  if (!mine.error && mineData) {
+    break;
+  }
+
+  await new Promise(resolve =>
+    setTimeout(resolve, delay)
+  );
+}
+
+if (mineData) {
+  localStorage.removeItem(
+    'shiftcal-pending-registration'
+  );
+
+  history.replaceState(
+    {},
+    '',
+    location.pathname
+  );
+}}}}catch{}if (mine.error || !mineData) {
   const delays = [
     500,
     1000,
