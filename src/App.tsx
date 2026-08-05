@@ -384,10 +384,6 @@ function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRen
   </span>
  </div>;
 })}
-    {' が '}{h.member_name||'メンバー'}{' のシフトを '}
-    {h.action==='insert'?'追加':h.action==='update'?'変更':'削除'}
-    <small>{new Date(h.created_at).toLocaleString('ja-JP')}</small>
-   </div>)}
   </details>
   {cropFile&&
  <AvatarCropper
@@ -400,7 +396,7 @@ function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRen
 }
 function Modal({children,onClose,title}:{children:React.ReactNode;onClose:()=>void;title:string}){return <div className="backdrop" onMouseDown={e=>e.target===e.currentTarget&&onClose()}><div className="modal"><div className="modal-head"><h2>{title}</h2><button onClick={onClose}><X/></button></div>{children}</div></div>}
 function DayModal({date,shifts,members,currentMemberId,edit,swapRequests,closed,onClose,onEdit,onCandidate,onCloseDay,onOpenDay}:{date:string;shifts:Shift[];members:Member[];currentMemberId:string;edit:boolean;swapRequests:SwapRequest[];closed?:ClosedDay;onClose:()=>void;onEdit:(d:Draft)=>void;onCandidate:(id:string)=>void;onCloseDay:(label:string)=>void;onOpenDay:()=>void}){return <Modal title={jaDate(date,true)} onClose={onClose}>{closed?<div className="closed-banner"><CalendarOff/><span>休業日（{closed.label}）</span></div>:<><ShiftList type="lunch" shifts={shifts} members={members} currentMemberId={currentMemberId} edit={edit} onEdit={onEdit} onCandidate={onCandidate} swapRequests={swapRequests}/><ShiftList type="dinner" shifts={shifts} members={members} currentMemberId={currentMemberId} edit={edit} onEdit={onEdit} onCandidate={onCandidate} swapRequests={swapRequests}/></>}{edit&&<>{!closed&&<button className="primary wide" onClick={()=>onEdit({member_id:members[0]?.id||'',shift_date:date,start_time:'11:00',end_time:'15:00'})}><Plus/>この日に追加</button>}{closed?<button className="delete wide closed-action" onClick={onOpenDay}>{closed.label}の休業を解除</button>:<button className="delete wide closed-action" onClick={()=>{const label=prompt('休業日の名前を入力してください','臨時休業');if(label?.trim())onCloseDay(label.trim())}}><CalendarOff/>休業日にする</button>}</>}</Modal>}
-function function MemberModal({
+function MemberModal({
  member,
  shifts,
  onClose
