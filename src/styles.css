@@ -426,3 +426,21 @@
 .member-grid .member-avatar.avatar-large.is-mine{
   box-shadow:none;
 }
+.shift-list .member-avatar.avatar-normal,
+.next-crew .member-avatar.avatar-normal,
+.overlap-ranking .member-avatar.avatar-normal{
+  width:34px;
+  height:34px;
+  min-width:34px;
+  min-height:34px;
+  flex:0 0 34px;
+}
+
+.shift-list .member-avatar.is-mine,
+.next-crew .member-avatar.is-mine{
+  box-shadow:0 0 0 1.5px #5b8def;
+}
+
+.overlap-ranking .member-avatar{
+  box-shadow:none;
+}
