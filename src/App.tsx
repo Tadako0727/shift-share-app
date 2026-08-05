@@ -100,7 +100,10 @@ if (!mineData) {
  const remove=async(id:string)=>{if(authMe&&confirm('このシフトを削除しますか？')&&await call('delete_shift',{p_shift_id:id,p_actor_member_id:authMe.id}))setDraft(null)};
  if(loading)return <div className="splash"><span className="logo">S</span><p>シフトを読み込んでいます</p></div>;
  if(!signedIn)return <Login error={error}/>;
- if(!me)return <div className="splash"><span className="logo">S</span><p>登録情報を確認しています</p></div>;
+if(!me)return <div className="splash">
+  <span className="logo">S</span>
+  <p>{error||'登録情報を確認しています'}</p>
+</div>;
  const title=tab==='today'?'今日':tab==='calendar'?'カレンダー':tab==='preferences'?'交代募集':tab==='members'?'メンバー':'設定';
  return <div className="app"><header><div><small>{new Intl.DateTimeFormat('ja-JP',{month:'long',day:'numeric',weekday:'long'}).format(new Date())}</small><h1>{title}</h1></div><button className={`mode ${edit?'active':''}`} onClick={toggleEdit}>{edit?'編集':'閲覧'}</button></header>
   {error&&<div className="error">{error}<button onClick={()=>setError('')}><X size={16}/></button></div>}
