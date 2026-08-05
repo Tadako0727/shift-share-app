@@ -53,7 +53,7 @@ if (mineData) {
     '',
     location.pathname
   );
-}}}}catch{}if (mine.error || !mineData) {
+}}}}catch}}if (mine.error || !mineData) {
   const delays = [
     500,
     1000,
