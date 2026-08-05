@@ -442,5 +442,43 @@
 }
 
 .overlap-ranking .member-avatar{
-  box-shadow:none;
+  box-.profile .member-avatar.avatar-large{
+  width:104px;
+  height:104px;
+  min-width:104px;
+  min-height:104px;
+  margin:0 auto 16px;
+  font-size:36px;
+}
+
+.member-modal-profile{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-bottom:20px;
+}
+
+.member-modal-profile h3{
+  margin:0 0 4px;
+  font-size:22px;
+}
+
+.member-modal-profile .real-name{
+  margin:0;
+}
+
+.history>div{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  align-items:center;
+  gap:10px;
+}
+
+.history-text{
+  min-width:0;
+}
+
+.history-text small{
+  display:block;
+  margin-top:3px;
 }
