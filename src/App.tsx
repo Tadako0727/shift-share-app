@@ -20,7 +20,43 @@ export default function App(){
  const [swapRequests,setSwapRequests]=useState<SwapRequest[]>([]);
  const authMe=members.find(m=>m.id===meId),me=authMe;
  const load=async()=>{const [m,s,h,c]=await Promise.all([supabase.from('members').select('id,name,display_name,is_host').order('name'),supabase.from('shifts').select('*').order('shift_date').order('start_time'),supabase.from('shift_history').select('*').order('created_at',{ascending:false}).limit(50),supabase.from('closed_days').select('closed_date,label,kind').order('closed_date')]);if(m.error||s.error||c.error){setError(m.error?.message||s.error?.message||c.error?.message||'読込に失敗しました');return}setMembers(m.data||[]);setShifts(s.data||[]);setHistory(h.data||[]);setClosedDays((c.data||[]) as ClosedDay[])};
- useEffect(()=>{let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){localStorage.removeItem('shiftcal-pending-registration');history.replaceState({},'',location.pathname);mine=await supabase.rpc('current_member_profile').maybeSingle();mineData=mine.data as Member|null}}}catch{localStorage.removeItem('shiftcal-pending-registration')}}if(mine.error||!mineData){await supabase.auth.signOut();if(active){setSignedIn(false);setError('登録を完了できませんでした。店舗コードと選択した名前を確認してください。');setLoading(false)}return}if(!active)return;choose(mineData.id);setSignedIn(true);await load();if(active)setLoading(false)};void start();const {data:listener}=supabase.auth.onAuthStateChange(event=>{if(event==='SIGNED_IN')setTimeout(()=>void start(),0);if(event==='SIGNED_OUT'&&active){setSignedIn(false);setLoading(false)}});return()=>{active=false;listener.subscription.unsubscribe()}},[]);
+ useEffect(()=>{let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){localStorage.removeItem('shiftcal-pending-registration');history.replaceState({},'',location.pathname);mine=await supabase.rpc('current_member_profile').maybeSingle();mineData=mine.data as Member|null}}}catch{localStorage.removeItem('shiftcal-pending-registration')}}if (mine.error || !mineData) {
+  const delays = [
+    500,
+    1000,
+    2000
+  ];
+
+  for (const delay of delays) {
+    await new Promise(resolve =>
+      setTimeout(resolve, delay)
+    );
+
+    const retry = await supabase
+      .rpc('current_member_profile')
+      .maybeSingle();
+
+    if (!retry.error && retry.data) {
+      mine = retry;
+      mineData = retry.data as Member;
+      break;
+    }
+  }
+}
+
+if (!mineData) {
+  if (active) {
+    setSignedIn(false);
+
+    setError(
+      'ログイン情報を確認できませんでした。通信状態を確認して、もう一度アプリを開いてください。'
+    );
+
+    setLoading(false);
+  }
+
+  return;
+}if(!active)return;choose(mineData.id);setSignedIn(true);await load();if(active)setLoading(false)};void start();const {data:listener}=supabase.auth.onAuthStateChange(event=>{if(event==='SIGNED_IN')setTimeout(()=>void start(),0);if(event==='SIGNED_OUT'&&active){setSignedIn(false);setLoading(false)}});return()=>{active=false;listener.subscription.unsubscribe()}},[]);
  useEffect(()=>{if(loading||!signedIn)return;const refreshSwaps=()=>void readSwapRequests().then(setSwapRequests).catch(e=>setError(e.message));void refreshSwaps();const channel=supabase.channel('shiftcal-live').on('postgres_changes',{event:'*',schema:'public',table:'shifts'},load).on('postgres_changes',{event:'*',schema:'public',table:'members'},load).on('postgres_changes',{event:'*',schema:'public',table:'closed_days'},load).on('postgres_changes',{event:'*',schema:'public',table:'swap_requests'},refreshSwaps).on('postgres_changes',{event:'*',schema:'public',table:'swap_candidates'},refreshSwaps).subscribe();return()=>{void supabase.removeChannel(channel)}},[loading,signedIn]);
  useEffect(()=>{if(!signedIn)return;void supabase.rpc('current_member_profile').maybeSingle().then(({data})=>{const member=data as Member|null;if(member&&member.id!==meId){localStorage.setItem(MEMBER_KEY,member.id);setMeId(member.id)}})},[signedIn,meId]);
  useEffect(()=>{const update=(event:Event)=>setSwapRequests((event as CustomEvent<SwapRequest[]>).detail);window.addEventListener(SWAP_EVENT,update);return()=>window.removeEventListener(SWAP_EVENT,update)},[]);
