@@ -11,3 +11,96 @@
 
 .month-head{padding:12px 18px}
 .month-head h2{margin:0}
+
+.cal-service{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  margin-top:4px;
+  min-width:0;
+}
+
+.cal-service small{
+  width:14px;
+  flex:0 0 14px;
+  font-size:9px;
+  font-weight:900;
+  color:#8d8c85;
+  line-height:1;
+}
+
+.cal-service>div{
+  display:flex;
+  align-items:center;
+  min-width:0;
+}
+
+.cal-avatar{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  box-sizing:border-box;
+  background:#e7dfce;
+  border:2px solid #fff;
+  font-size:9px;
+  font-weight:900;
+  line-height:1;
+  margin-left:-5px;
+}
+
+.cal-avatar:first-child{
+  margin-left:0;
+}
+
+.cal-avatar img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+
+.cal-avatar.mine{
+  border-color:var(--coral);
+  box-shadow:0 0 0 1px var(--coral);
+  z-index:2;
+}
+
+.cal-service em{
+  margin-left:3px;
+  font-size:9px;
+  font-style:normal;
+  font-weight:900;
+  color:#777;
+}
+
+.calendar>button.has-my-shift{
+  background:#fff8f3;
+}
+
+.calendar>button.has-my-shift>b{
+  color:var(--coral);
+}
+
+@media(max-width:480px){
+  .cal-avatar{
+    width:20px;
+    height:20px;
+    font-size:8px;
+    margin-left:-5px;
+  }
+
+  .cal-service{
+    gap:2px;
+    margin-top:3px;
+  }
+
+  .cal-service small{
+    width:12px;
+    flex-basis:12px;
+    font-size:8px;
+  }
+}
