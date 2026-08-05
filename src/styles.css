@@ -442,7 +442,10 @@
 }
 
 .overlap-ranking .member-avatar{
-  box-.profile .member-avatar.avatar-large{
+  box-shadow:none;
+}
+
+.profile .member-avatar.avatar-large{
   width:104px;
   height:104px;
   min-width:104px;
