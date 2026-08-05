@@ -176,7 +176,55 @@ function CalendarView({month,setMonth,shifts,members,currentMemberId,swapRequest
   })}</div>
  </section>
 }
-function MembersView({members,shifts,onMember}:{members:Member[];shifts:Shift[];onMember:(id:string)=>void}){const month=localDate().slice(0,7);return <section className="member-grid"><div className="section-title"><p>CREW</p><h2>メンバー一覧</h2></div>{members.map(m=><button key={m.id} onClick={()=>onMember(m.id)}><span className="big-avatar">{shownName(m).slice(0,1)}</span><div><h3>{shownName(m)}</h3>{m.is_host&&<small>HOST</small>}<p>{shifts.filter(s=>s.member_id===m.id&&s.shift_date.startsWith(month)).length} shifts this month</p></div><ChevronRight/></button>)}</section>}
+function MembersView({
+ members,
+ shifts,
+ onMember
+}:{
+ members:Member[];
+ shifts:Shift[];
+ onMember:(id:string)=>void;
+}){
+ const month=localDate().slice(0,7);
+
+ return <section className="member-grid">
+  <div className="section-title">
+   <p>CREW</p>
+   <h2>メンバー一覧</h2>
+  </div>
+
+  {members.map(member=>
+   <button
+    key={member.id}
+    onClick={()=>onMember(member.id)}
+   >
+    <MemberAvatar
+     member={member}
+     size="large"
+    />
+
+    <div>
+     <h3>{shownName(member)}</h3>
+
+     {member.is_host&&
+      <small>HOST</small>
+     }
+
+     <p>
+      {
+       shifts.filter(shift=>
+        shift.member_id===member.id&&
+        shift.shift_date.startsWith(month)
+       ).length
+      } shifts this month
+     </p>
+    </div>
+
+    <ChevronRight/>
+   </button>
+  )}
+ </section>;
+}
 function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRename}:{me:Member;members:Member[];history:History[];edit:boolean;onToggle:()=>void;onPayroll:()=>void;onLogout:()=>Promise<void>;onRename:(s:string)=>Promise<boolean>}){
  const [name,setName]=useState(shownName(me));
  const [busy,setBusy]=useState(false);
