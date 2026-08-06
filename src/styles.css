@@ -95,8 +95,18 @@
   color:#3f7fe8;
 }
 
+.calendar>button.today{
+  background:#f3f7ff;
+}
+
 .calendar>button.today>b{
+  background:transparent;
   color:#3f7fe8;
+  border-radius:0;
+  width:auto;
+  height:auto;
+  display:block;
+  font-weight:900;
 }
 
 .closed-dot{
