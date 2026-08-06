@@ -109,6 +109,23 @@
   font-weight:900;
 }
 
+.calendar>button.quiet-sunday{
+  background:#fafafa;
+  color:#b6bac2;
+}
+
+.calendar>button.quiet-sunday>b{
+  color:#aeb3bb;
+}
+
+.calendar>button.quiet-sunday::after{
+  content:'定休';
+  margin-top:auto;
+  font-size:8px;
+  font-weight:800;
+  color:#c2c6cd;
+}
+
 .closed-dot{
   background:#edf4ff!important;
   color:#3978d3!important;
