@@ -185,7 +185,7 @@
   overflow:hidden;
   box-sizing:border-box;
   background:#eef1f4;
-  border:2px solid #fff;
+  border:1px solid #fff;
   color:#5d6470;
   font-size:8px;
   font-weight:900;
@@ -394,9 +394,9 @@
 
 /* 自分は真円の細い青枠 */
 .member-avatar.avatar-calendar.is-mine{
-  border:2px solid #5b8def;
+  border:1px solid #5b8def;
   border-radius:50%!important;
-  box-shadow:0 0 0 1px rgba(91,141,239,.18);
+  box-shadow:0 0 0 .5px rgba(91,141,239,.16);
 }
 
 /* 昼と夜の間を少し空ける */
