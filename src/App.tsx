@@ -175,8 +175,25 @@ function CalendarView({month,setMonth,shifts,members,currentMemberId,swapRequest
 return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===localDate()?'today':''} ${mine?'has-my-shift':''} ${quietSunday?'quiet-sunday':''}`} onClick={()=>onDay(ds)}>
     <b>{d.getDate()}</b>
     {closed?<span className="closed-dot">休業</span>:<>
-     {lunch.length>0&&<div className="cal-service"><small>昼</small><div>{lunch.slice(0,4).map(avatar)}{lunch.length>4&&<em>+{lunch.length-4}</em>}</div></div>}
-     {dinner.length>0&&<div className="cal-service"><small>夜</small><div>{dinner.slice(0,4).map(avatar)}{dinner.length>4&&<em>+{dinner.length-4}</em>}</div></div>}
+     {d.getDay()!==6&&lunch.length>0&&
+ <div className="cal-service">
+  <small>昼</small>
+  <div>
+   {lunch.slice(0,3).map(avatar)}
+   {lunch.length>3&&<em>…</em>}
+  </div>
+ </div>
+}
+
+{dinner.length>0&&
+ <div className="cal-service">
+  <small>夜</small>
+  <div>
+   {dinner.slice(0,3).map(avatar)}
+   {dinner.length>3&&<em>…</em>}
+  </div>
+ </div>
+}
      {swapping&&<span className="swap-dot">交代</span>}
     </>}
    </button>
