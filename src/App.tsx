@@ -170,7 +170,9 @@ function CalendarView({month,setMonth,shifts,members,currentMemberId,swapRequest
    const lunch=rows.filter(s=>includesKind(s,'lunch')),dinner=rows.filter(s=>includesKind(s,'dinner'));
    const swapping=rows.some(s=>swapRequests.some(r=>r.shiftId===s.id&&r.status==='open'));
    const mine=rows.some(s=>s.member_id===currentMemberId);
-   return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===localDate()?'today':''} ${mine?'has-my-shift':''}`} onClick={()=>onDay(ds)}>
+   const quietSunday=d.getDay()===0&&rows.length===0&&!closed;
+  
+return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===localDate()?'today':''} ${mine?'has-my-shift':''} ${quietSunday?'quiet-sunday':''}`} onClick={()=>onDay(ds)}>
     <b>{d.getDate()}</b>
     {closed?<span className="closed-dot">休業</span>:<>
      {lunch.length>0&&<div className="cal-service"><small>昼</small><div>{lunch.slice(0,4).map(avatar)}{lunch.length>4&&<em>+{lunch.length-4}</em>}</div></div>}
