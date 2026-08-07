@@ -543,3 +543,53 @@
   display:block;
   margin-top:3px;
 }
+
+
+/* ===== Compact calendar service final override ===== */
+
+.calendar>button .cal-service{
+  width:auto;
+  max-width:100%;
+  margin-top:3px;
+  padding:2px 3px;
+  border-radius:5px;
+  display:block;
+}
+
+.calendar>button .cal-service+.cal-service{
+  margin-top:4px;
+}
+
+.calendar>button .cal-avatar-grid{
+  display:grid;
+  grid-template-columns:repeat(2,15px);
+  grid-auto-rows:15px;
+  gap:1px;
+  width:max-content;
+  max-width:100%;
+  padding:0;
+}
+
+.calendar>button .member-avatar.avatar-calendar{
+  width:15px;
+  height:15px;
+  min-width:15px;
+  min-height:15px;
+  flex:0 0 15px;
+  margin-left:0;
+  font-size:6px;
+}
+
+.calendar>button .cal-more{
+  width:15px;
+  height:15px;
+  display:grid;
+  place-items:center;
+  margin:0;
+  padding:0;
+  font-size:12px;
+  font-style:normal;
+  font-weight:600;
+  line-height:1;
+  color:#78808b;
+}
