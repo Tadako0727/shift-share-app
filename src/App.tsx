@@ -11,7 +11,9 @@ import AvatarCropper from './AvatarCropper';
 
 type Tab='today'|'calendar'|'preferences'|'members'|'settings';
 type Draft={id?:string;member_id:string;shift_date:string;start_time:string;end_time:string};
-const MEMBER_KEY='shiftcal-member-id'; const EDIT_KEY='shiftcal-edit-mode';
+const MEMBER_KEY='shiftcal-member-id';
+const THEME_KEY='shiftcal-theme';
+const EDIT_KEY='shiftcal-edit-mode';
 const jaDate=(s:string,detail=false)=>new Intl.DateTimeFormat('ja-JP',detail?{month:'long',day:'numeric',weekday:'short'}:{month:'numeric',day:'numeric',weekday:'short'}).format(new Date(`${s}T12:00:00`));
 
 export default function App(){
@@ -19,6 +21,13 @@ export default function App(){
  const [meId,setMeId]=useState(localStorage.getItem(MEMBER_KEY)||''),[tab,setTab]=useState<Tab>('today'),[loading,setLoading]=useState(true),[signedIn,setSignedIn]=useState(false),[error,setError]=useState('');
  const [edit,setEdit]=useState(sessionStorage.getItem(EDIT_KEY)==='1'),[month,setMonth]=useState(()=>new Date()),[selectedDate,setSelectedDate]=useState<string|null>(null),[selectedMember,setSelectedMember]=useState<string|null>(null),[draft,setDraft]=useState<Draft|null>(null),[candidateFor,setCandidateFor]=useState<string|null>(null),[bulk,setBulk]=useState(false),[payrollOpen,setPayrollOpen]=useState(false);
  const [swapRequests,setSwapRequests]=useState<SwapRequest[]>([]);
+ const [theme,setTheme]=useState<'light'|'dark'>(()=>
+  localStorage.getItem(THEME_KEY)==='dark'?'dark':'light'
+);
+ useEffect(()=>{
+  document.documentElement.dataset.theme=theme;
+  localStorage.setItem(THEME_KEY,theme);
+},[theme]);
  const authMe=members.find(m=>m.id===meId),me=authMe;
  const load=async()=>{const [m,s,h,c]=await Promise.all([supabase.from('members').select('id,name,display_name,avatar_url,is_host').order('name'),supabase.from('shifts').select('*').order('shift_date').order('start_time'),supabase.from('shift_history').select('*').order('created_at',{ascending:false}).limit(50),supabase.from('closed_days').select('closed_date,label,kind').order('closed_date')]);if(m.error||s.error||c.error){setError(m.error?.message||s.error?.message||c.error?.message||'読込に失敗しました');return}setMembers(m.data||[]);setShifts(s.data||[]);setHistory(h.data||[]);setClosedDays((c.data||[]) as ClosedDay[])};
  useEffect(()=>{let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){const delays = [
@@ -113,8 +122,7 @@ if(!me)return <div className="splash">
 {tab==='calendar'&&<CalendarView month={month} setMonth={setMonth} shifts={shifts} members={members} currentMemberId={me.id} swapRequests={swapRequests} closedDays={closedDays} onDay={setSelectedDate}/>}
    {tab==='preferences'&&<SwapBoard member={me} members={members} shifts={shifts} requests={swapRequests} onRefresh={setSwapRequests} onError={message=>setError(message)}/>}
    {tab==='members'&&<MembersView members={members} shifts={shifts} onMember={setSelectedMember}/>}
-   {tab==='settings'&&authMe&&<SettingsView me={authMe} members={members} history={auditHistory} edit={edit} onToggle={toggleEdit} onPayroll={()=>setPayrollOpen(true)} onLogout={async()=>{sessionStorage.removeItem(EDIT_KEY);localStorage.removeItem(MEMBER_KEY);setEdit(false);setMeId('');await supabase.auth.signOut()}} onRename={async name=>{if(await call('set_display_name',{p_member_id:authMe.id,p_display_name:name}))return true;return false}}/>}
-  </main>
+   {tab==='settings'&&authMe&&<SettingsView me={authMe} members={members} history={auditHistory} edit={edit} onToggle={toggleEdit} onPayroll={()=>setPayrollOpen(true)} onLogout={async()=>{sessionStorage.removeItem(EDIT_KEY);localStorage.removeItem(MEMBER_KEY);setEdit(false);setMeId('');await supabase.auth.signOut()}} onRename={async name=>{if(await call('set_display_name',{p_member_id:authMe.id,p_display_name:name}))return true;return theme={theme} onThemeChange={setTheme}
   {edit&&<button className="fab" onClick={()=>setBulk(true)} aria-label="シフトを登録"><Plus/></button>}
   <nav>{([{id:'today',icon:Home,label:'今日'},{id:'calendar',icon:CalendarDays,label:'カレンダー'},{id:'preferences',icon:HeartHandshake,label:'交代'},{id:'members',icon:Users,label:'メンバー'},{id:'settings',icon:Settings,label:'設定'}] as const).map(i=><button className={tab===i.id?'active':''} onClick={()=>setTab(i.id)} key={i.id}><i.icon/><span>{i.label}</span></button>)}</nav>
   {selectedDate&&<DayModal date={selectedDate} shifts={shifts.filter(s=>s.shift_date===selectedDate)} members={members} currentMemberId={me.id} edit={edit} swapRequests={swapRequests} closed={closedDays.find(c=>c.closed_date===selectedDate)} onClose={()=>setSelectedDate(null)} onEdit={setDraft} onCandidate={setCandidateFor} onCloseDay={async(label)=>{if(!me)return;const ok=await call('set_closed_day',{p_actor_member_id:me.id,p_closed_date:selectedDate,p_label:label});if(ok)setSelectedDate(null)}} onOpenDay={async()=>{if(!me)return;const ok=await call('delete_closed_day',{p_actor_member_id:me.id,p_closed_date:selectedDate});if(ok)setSelectedDate(null)}}/>}
