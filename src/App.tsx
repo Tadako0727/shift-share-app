@@ -13,7 +13,37 @@ type Tab='today'|'calendar'|'preferences'|'members'|'settings';
 type Draft={id?:string;member_id:string;shift_date:string;start_time:string;end_time:string};
 const MEMBER_KEY='shiftcal-member-id';
 const THEME_KEY='shiftcal-theme';
+const COLOR_THEME_KEY='shiftcal-color-theme';
 const EDIT_KEY='shiftcal-edit-mode';
+
+type ColorTheme =
+  | 'ruby'
+  | 'amber'
+  | 'mustard'
+  | 'forest'
+  | 'azure'
+  | 'indigo'
+  | 'violet'
+  | 'mocha'
+  | 'monochrome'
+  | 'sakura'
+  | 'sage'
+  | 'navy';
+
+const COLOR_THEMES:{id:ColorTheme;label:string;color:string}[]=[
+  {id:'ruby',label:'Ruby',color:'#D95757'},
+  {id:'amber',label:'Amber',color:'#D9822B'},
+  {id:'mustard',label:'Mustard',color:'#C5A52E'},
+  {id:'forest',label:'Forest',color:'#3F8A62'},
+  {id:'azure',label:'Azure',color:'#4F78C8'},
+  {id:'indigo',label:'Indigo',color:'#6659B8'},
+  {id:'violet',label:'Violet',color:'#A45A9D'},
+  {id:'mocha',label:'Mocha',color:'#8A6548'},
+  {id:'monochrome',label:'Monochrome',color:'#60646C'},
+  {id:'sakura',label:'Sakura',color:'#C96F86'},
+  {id:'sage',label:'Sage',color:'#718B72'},
+  {id:'navy',label:'Navy',color:'#405675'}
+];
 const jaDate=(s:string,detail=false)=>new Intl.DateTimeFormat('ja-JP',detail?{month:'long',day:'numeric',weekday:'short'}:{month:'numeric',day:'numeric',weekday:'short'}).format(new Date(`${s}T12:00:00`));
 
 export default function App(){
@@ -24,10 +54,21 @@ export default function App(){
  const [theme,setTheme]=useState<'light'|'dark'>(()=>
   localStorage.getItem(THEME_KEY)==='dark'?'dark':'light'
 );
+ const [colorTheme,setColorTheme]=useState<ColorTheme>(()=>{
+  const saved=localStorage.getItem(COLOR_THEME_KEY) as ColorTheme|null;
+
+  return COLOR_THEMES.some(item=>item.id===saved)
+    ? saved!
+    : 'amber';
+});
  useEffect(()=>{
   document.documentElement.dataset.theme=theme;
   localStorage.setItem(THEME_KEY,theme);
 },[theme]);
+ useEffect(()=>{
+  document.documentElement.dataset.colorTheme=colorTheme;
+  localStorage.setItem(COLOR_THEME_KEY,colorTheme);
+},[colorTheme]);
  const authMe=members.find(m=>m.id===meId),me=authMe;
  const load=async()=>{const [m,s,h,c]=await Promise.all([supabase.from('members').select('id,name,display_name,avatar_url,is_host').order('name'),supabase.from('shifts').select('*').order('shift_date').order('start_time'),supabase.from('shift_history').select('*').order('created_at',{ascending:false}).limit(50),supabase.from('closed_days').select('closed_date,label,kind').order('closed_date')]);if(m.error||s.error||c.error){setError(m.error?.message||s.error?.message||c.error?.message||'読込に失敗しました');return}setMembers(m.data||[]);setShifts(s.data||[]);setHistory(h.data||[]);setClosedDays((c.data||[]) as ClosedDay[])};
  useEffect(()=>{let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){const delays = [
@@ -130,6 +171,8 @@ if(!me)return <div className="splash">
     edit={edit}
     theme={theme}
     onThemeChange={setTheme}
+   colorTheme={colorTheme}
+onColorThemeChange={setColorTheme}
     onToggle={toggleEdit}
     onPayroll={()=>setPayrollOpen(true)}
     onLogout={async()=>{
@@ -288,6 +331,8 @@ function SettingsView({
   edit,
   theme,
   onThemeChange,
+  colorTheme,
+  onColorThemeChange,
   onToggle,
   onPayroll,
   onLogout,
@@ -299,6 +344,8 @@ function SettingsView({
   edit:boolean;
   theme:'light'|'dark';
   onThemeChange:(theme:'light'|'dark')=>void;
+  colorTheme:ColorTheme;
+  onColorThemeChange:(theme:ColorTheme)=>void;
   onToggle:()=>void;
   onPayroll:()=>void;
   onLogout:()=>Promise<void>;
