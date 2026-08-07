@@ -876,3 +876,14 @@
 :root[data-theme="dark"] .cal-service.dinner * {
   color: #FFFFFF !important;
 }
+
+/* ===== ダークモード：夜シフト ===== */
+
+:root[data-theme="dark"] .cal-service-dinner {
+  background: #3B5FA8 !important;
+}
+
+/* ＋表示 */
+:root[data-theme="dark"] .cal-service-dinner .cal-more {
+  color: #FFFFFF !important;
+}
