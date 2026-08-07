@@ -489,6 +489,31 @@ function SettingsView({
 
   <p>この端末で選んだ表示を保存します。</p>
 </div>
+   <div className="setting-card">
+  <label>テーマカラー</label>
+
+  <div className="color-theme-grid">
+    {COLOR_THEMES.map(item=>(
+      <button
+        key={item.id}
+        type="button"
+        className={`color-theme-option ${colorTheme===item.id?'active':''}`}
+        onClick={()=>onColorThemeChange(item.id)}
+        aria-label={`${item.label}テーマに変更`}
+        title={item.label}
+      >
+        <span
+          className="color-theme-swatch"
+          style={{backgroundColor:item.color}}
+        />
+
+        <small>{item.label}</small>
+      </button>
+    ))}
+  </div>
+
+  <p>アプリのアクセントカラーを変更できます。</p>
+</div>
   <button className="setting-row" onClick={onPayroll}>
    
    <Calculator/><div><b>給与計算</b><small>時給・深夜加算・交通費から概算</small></div>
