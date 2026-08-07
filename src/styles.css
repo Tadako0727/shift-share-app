@@ -892,3 +892,37 @@
 :root[data-theme="dark"] .cal-service-lunch {
   background: #B88732 !important;
 }
+/* ===== ダークモード：次のシフト ===== */
+
+:root[data-theme="dark"] .next-shift {
+  color: #171c26;
+}
+
+:root[data-theme="dark"] .next-shift .next-title h2 {
+  color: #171c26;
+}
+
+:root[data-theme="dark"] .next-shift .next-title p {
+  color: #5f6470;
+}
+
+:root[data-theme="dark"] .next-shift .next-title small {
+  color: #d85a3a;
+}
+
+:root[data-theme="dark"] .next-shift .next-crew {
+  color: #171c26;
+}
+
+:root[data-theme="dark"] .next-shift .next-crew > small {
+  color: #6b7280;
+}
+
+:root[data-theme="dark"] .next-shift .next-crew time,
+:root[data-theme="dark"] .next-shift .next-crew b {
+  color: #171c26;
+}
+
+:root[data-theme="dark"] .next-shift .next-crew em {
+  color: #6b7280;
+}
