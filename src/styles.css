@@ -863,3 +863,16 @@
 :root[data-theme="dark"] .cal-service.dinner{
   background:#263b5c;
 }
+/* ===== ダークモード：夜シフトを明るくする ===== */
+
+:root[data-theme="dark"] .cal-service.night,
+:root[data-theme="dark"] .cal-service.dinner {
+  background: #3B5FA8 !important;
+  color: #FFFFFF !important;
+}
+
+/* 夜シフト内の名前・文字も白にする */
+:root[data-theme="dark"] .cal-service.night *,
+:root[data-theme="dark"] .cal-service.dinner * {
+  color: #FFFFFF !important;
+}
