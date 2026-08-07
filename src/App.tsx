@@ -149,6 +149,7 @@ if(!me)return <div className="splash">
   />
 }
    {edit&&<button className="fab" onClick={()=>setBulk(true)} aria-label="シフトを登録"><Plus/></button>}
+   </main>
   <nav>{([{id:'today',icon:Home,label:'今日'},{id:'calendar',icon:CalendarDays,label:'カレンダー'},{id:'preferences',icon:HeartHandshake,label:'交代'},{id:'members',icon:Users,label:'メンバー'},{id:'settings',icon:Settings,label:'設定'}] as const).map(i=><button className={tab===i.id?'active':''} onClick={()=>setTab(i.id)} key={i.id}><i.icon/><span>{i.label}</span></button>)}</nav>
   {selectedDate&&<DayModal date={selectedDate} shifts={shifts.filter(s=>s.shift_date===selectedDate)} members={members} currentMemberId={me.id} edit={edit} swapRequests={swapRequests} closed={closedDays.find(c=>c.closed_date===selectedDate)} onClose={()=>setSelectedDate(null)} onEdit={setDraft} onCandidate={setCandidateFor} onCloseDay={async(label)=>{if(!me)return;const ok=await call('set_closed_day',{p_actor_member_id:me.id,p_closed_date:selectedDate,p_label:label});if(ok)setSelectedDate(null)}} onOpenDay={async()=>{if(!me)return;const ok=await call('delete_closed_day',{p_actor_member_id:me.id,p_closed_date:selectedDate});if(ok)setSelectedDate(null)}}/>}
   {selectedMember&&<MemberModal member={members.find(m=>m.id===selectedMember)!} shifts={shifts.filter(s=>s.member_id===selectedMember)} onClose={()=>setSelectedMember(null)}/>}
