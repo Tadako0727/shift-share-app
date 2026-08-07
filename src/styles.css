@@ -13,22 +13,18 @@
 .month-head h2{margin:0}
 
 .cal-service{
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
-  gap:5px;
-  margin-top:5px;
+  margin-top:4px;
+  padding:3px;
+  border-radius:6px;
   min-width:0;
 }
 
-.cal-service small{
-  width:14px;
-  flex:0 0 14px;
-  text-align:left;
-  font-size:9px;
-  font-weight:800;
-  color:#8a8f98;
-  line-height:1;
+.cal-service-lunch{
+  background:rgba(255, 214, 102, 0.16);
+}
+
+.cal-service-dinner{
+  background:rgba(91, 141, 239, 0.10);
 }
 
 .cal-service>div{
