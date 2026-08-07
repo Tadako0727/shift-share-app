@@ -1161,3 +1161,300 @@ nav button.active {
   border-color: var(--accent);
   box-shadow: 0 0 0 1.5px var(--accent-ring);
 }
+/* ========================================
+   LIGHT MODE - FULL THEME APPLICATION
+   ======================================== */
+
+:root[data-theme="light"] {
+  --paper: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: var(--accent-soft);
+  --text-main: #171c26;
+  --text-sub: #6f7480;
+  --border-soft: color-mix(in srgb, var(--accent) 18%, #e8e8e8);
+}
+
+
+/* 全体背景 */
+:root[data-theme="light"] body,
+:root[data-theme="light"] .app {
+  background: #ffffff;
+  color: var(--text-main);
+}
+
+
+/* ヘッダー */
+:root[data-theme="light"] .app > header {
+  background: #ffffff;
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .app > header small,
+:root[data-theme="light"] .eyebrow,
+:root[data-theme="light"] .section-title p {
+  color: var(--accent-strong);
+}
+
+
+/* 閲覧 / 編集ボタン */
+:root[data-theme="light"] .mode {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .mode.active {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+
+/* TODAY'S CREW */
+:root[data-theme="light"] .hero {
+  background: var(--accent-soft);
+  color: var(--text-main);
+  border: 1px solid var(--border-soft);
+}
+
+:root[data-theme="light"] .hero p {
+  color: var(--accent-strong);
+}
+
+:root[data-theme="light"] .hero h2 {
+  color: var(--text-main);
+}
+
+:root[data-theme="light"] .hero span {
+  color: var(--text-sub);
+}
+
+
+/* ランチ・ディナーの大枠 */
+:root[data-theme="light"] .service {
+  background: #ffffff;
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .service-head small {
+  color: var(--accent-strong);
+}
+
+:root[data-theme="light"] .shift-list > button {
+  background: #ffffff;
+  border-color: var(--border-soft);
+}
+
+
+/* NEXT SHIFT */
+:root[data-theme="light"] .next-shift {
+  background: var(--accent-soft);
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
+}
+
+:root[data-theme="light"] .next-title {
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .next-title svg {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+:root[data-theme="light"] .next-title small {
+  color: var(--accent-strong);
+}
+
+:root[data-theme="light"] .next-title h2 {
+  color: var(--accent-strong);
+}
+
+:root[data-theme="light"] .next-title p {
+  color: var(--text-sub);
+}
+
+:root[data-theme="light"] .next-crew > small {
+  color: var(--accent-strong);
+}
+
+:root[data-theme="light"] .next-crew > div {
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .next-crew time {
+  color: var(--accent-strong);
+}
+
+:root[data-theme="light"] .next-crew b {
+  color: var(--text-main);
+}
+
+:root[data-theme="light"] .next-crew em {
+  color: var(--text-sub);
+}
+
+
+/* よく一緒になる人 */
+:root[data-theme="light"] .overlap-ranking {
+  background: #ffffff;
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .overlap-title small {
+  color: var(--accent);
+}
+
+:root[data-theme="light"] .overlap-ranking li {
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .overlap-ranking li > strong {
+  color: var(--accent);
+}
+
+
+/* カレンダー外枠 */
+:root[data-theme="light"] .calendar-card {
+  background: #ffffff;
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .month-head button {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+:root[data-theme="light"] .week {
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .calendar > button {
+  background: #ffffff;
+  border-color: var(--border-soft);
+}
+
+
+/* 今日 */
+:root[data-theme="light"] .calendar > button.today > b {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+
+/* 自分のシフトがある日 */
+:root[data-theme="light"] .calendar > button.has-my-shift {
+  background: color-mix(in srgb, var(--accent-soft) 55%, #ffffff);
+}
+
+:root[data-theme="light"] .calendar > button.has-my-shift > b {
+  color: var(--accent-strong);
+}
+
+/* 今日＋自分のシフト */
+:root[data-theme="light"] .calendar > button.today.has-my-shift > b {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+
+/* メンバー */
+:root[data-theme="light"] .member-grid > button {
+  background: #ffffff;
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .member-grid small {
+  color: var(--accent);
+}
+
+
+/* 設定 */
+:root[data-theme="light"] .setting-card,
+:root[data-theme="light"] .setting-row {
+  background: #ffffff;
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .setting-card > label {
+  color: var(--accent-strong);
+}
+
+:root[data-theme="light"] .inline input,
+:root[data-theme="light"] .form input,
+:root[data-theme="light"] .form select,
+:root[data-theme="light"] .form textarea {
+  background: #ffffff;
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] .inline input:focus,
+:root[data-theme="light"] .form input:focus,
+:root[data-theme="light"] .form select:focus,
+:root[data-theme="light"] .form textarea:focus {
+  outline: 2px solid var(--accent-ring);
+  border-color: var(--accent);
+}
+
+
+/* 通常ボタン */
+:root[data-theme="light"] .inline button,
+:root[data-theme="light"] .primary {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+
+/* テーマ切替 */
+:root[data-theme="light"] .theme-switch {
+  background: var(--accent-soft);
+}
+
+:root[data-theme="light"] .theme-switch button.active {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+
+/* テーマカラー選択 */
+:root[data-theme="light"] .color-theme-option.active {
+  background: var(--accent-soft);
+}
+
+:root[data-theme="light"] .color-theme-option.active small {
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
+
+/* モーダル */
+:root[data-theme="light"] .modal {
+  background: #ffffff;
+}
+
+:root[data-theme="light"] .modal-head button {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+:root[data-theme="light"] .preview {
+  background: var(--accent-soft);
+}
+
+
+/* 下部ナビ */
+:root[data-theme="light"] nav {
+  background: rgba(255,255,255,.94);
+  border-color: var(--border-soft);
+}
+
+:root[data-theme="light"] nav button.active {
+  color: var(--accent);
+}
+
+
+/* 編集用FAB */
+:root[data-theme="light"] .fab {
+  background: var(--accent);
+  color: var(--accent-text);
+}
