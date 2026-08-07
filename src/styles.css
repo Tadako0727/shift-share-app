@@ -593,3 +593,19 @@
   line-height:1;
   color:#78808b;
 }
+
+.calendar>button .cal-avatar-grid{
+  grid-template-rows:none;
+  grid-auto-rows:15px;
+  align-content:start;
+}
+
+.calendar>button .cal-service{
+  height:auto;
+  min-height:0;
+  align-self:flex-start;
+}
+
+.calendar>button .cal-service:has(.cal-avatar-grid){
+  flex:none;
+}
