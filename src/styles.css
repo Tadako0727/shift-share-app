@@ -838,25 +838,7 @@
   background:#44251f;
   color:#ff9b81;
 }
-/* ===== Next shift card readability ===== */
 
-:root[data-theme="dark"] .next-card{
-  color:#171c26;
-}
-
-:root[data-theme="dark"] .next-card h2,
-:root[data-theme="dark"] .next-card h3,
-:root[data-theme="dark"] .next-card strong,
-:root[data-theme="dark"] .next-card b,
-:root[data-theme="dark"] .next-card time{
-  color:#171c26;
-}
-
-:root[data-theme="dark"] .next-card p,
-:root[data-theme="dark"] .next-card span,
-:root[data-theme="dark"] .next-card small{
-  color:#6b6250;
-}
 /* ===== Dark mode: night shift visibility ===== */
 
 :root[data-theme="dark"] .cal-service.night,
