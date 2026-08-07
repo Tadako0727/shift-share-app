@@ -415,10 +415,34 @@ function SettingsView({
     <input value={name} maxLength={24} onChange={e=>setName(e.target.value)}/>
     <button onClick={()=>void onRename(name)}>保存</button>
    </div>
+   
    <p>ゲームのユーザー名のように、いつでも変更できます。</p>
   </div>
+  <div className="setting-card">
+  <label>外観</label>
 
+  <div className="theme-switch">
+    <button
+      type="button"
+      className={theme==='light'?'active':''}
+      onClick={()=>onThemeChange('light')}
+    >
+      ライト
+    </button>
+
+    <button
+      type="button"
+      className={theme==='dark'?'active':''}
+      onClick={()=>onThemeChange('dark')}
+    >
+      ダーク
+    </button>
+  </div>
+
+  <p>この端末で選んだ表示を保存します。</p>
+</div>
   <button className="setting-row" onClick={onPayroll}>
+   
    <Calculator/><div><b>給与計算</b><small>時給・深夜加算・交通費から概算</small></div>
   </button>
 
