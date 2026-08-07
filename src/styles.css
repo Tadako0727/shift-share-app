@@ -887,3 +887,8 @@
 :root[data-theme="dark"] .cal-service-dinner .cal-more {
   color: #FFFFFF !important;
 }
+/* ===== ダークモード：ランチシフト ===== */
+
+:root[data-theme="dark"] .cal-service-lunch {
+  background: #B88732 !important;
+}
