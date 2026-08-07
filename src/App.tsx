@@ -176,21 +176,19 @@ return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===loca
     <b>{d.getDate()}</b>
     {closed?<span className="closed-dot">休業</span>:<>
      {d.getDay()!==6&&lunch.length>0&&
- <div className="cal-service">
-  <small>昼</small>
-  <div>
-  {lunch.slice(0,2).map(avatar)}
-{lunch.length>2&&<em>…</em>}
+ <div className="cal-service cal-service-lunch">
+  <div className="cal-avatar-grid">
+   {lunch.slice(0,4).map(avatar)}
+   {lunch.length>4&&<em className="cal-more">＋</em>}
   </div>
  </div>
 }
 
 {dinner.length>0&&
- <div className="cal-service">
-  <small>夜</small>
-  <div>
- {dinner.slice(0,2).map(avatar)}
-{dinner.length>2&&<em>…</em>}
+ <div className="cal-service cal-service-dinner">
+  <div className="cal-avatar-grid">
+   {dinner.slice(0,4).map(avatar)}
+   {dinner.length>4&&<em className="cal-more">＋</em>}
   </div>
  </div>
 }
