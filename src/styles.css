@@ -643,3 +643,123 @@
   font-weight:900;
   line-height:1;
 }
+
+/* ===== Theme switch ===== */
+
+.theme-switch{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-top:10px;
+  padding:4px;
+  border-radius:12px;
+  background:#efeee9;
+}
+
+.theme-switch button{
+  border:0;
+  border-radius:9px;
+  padding:10px 12px;
+  background:transparent;
+  color:#777;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.theme-switch button.active{
+  background:#fff;
+  color:#171c26;
+  box-shadow:0 1px 5px rgba(0,0,0,.08);
+}
+
+
+/* ===== Dark mode ===== */
+
+:root[data-theme="dark"]{
+  color:#f3f4f6;
+  background:#111318;
+
+  --ink:#f3f4f6;
+  --paper:#1b1e24;
+  --line:#30343d;
+}
+
+:root[data-theme="dark"] body{
+  background:#111318;
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .app{
+  background:#111318;
+}
+
+:root[data-theme="dark"] .app>header{
+  background:#1b1e24;
+  border-color:#30343d;
+}
+
+:root[data-theme="dark"] .app>header small,
+:root[data-theme="dark"] .eyebrow,
+:root[data-theme="dark"] .section-title p{
+  color:#999fa9;
+}
+
+:root[data-theme="dark"] .mode{
+  background:#252932;
+  border-color:#383d47;
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .service,
+:root[data-theme="dark"] .calendar-card,
+:root[data-theme="dark"] .setting-card,
+:root[data-theme="dark"] .setting-row,
+:root[data-theme="dark"] .member-grid>button{
+  background:#1b1e24;
+  border-color:#30343d;
+}
+
+:root[data-theme="dark"] .shift-list>button,
+:root[data-theme="dark"] .calendar button{
+  background:#1b1e24;
+  border-color:#30343d;
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .calendar button.outside{
+  background:#16191f;
+  color:#626873;
+}
+
+:root[data-theme="dark"] nav{
+  background:rgba(27,30,36,.92);
+  border-color:#30343d;
+}
+
+:root[data-theme="dark"] .month-head button{
+  background:#292d35;
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .inline input,
+:root[data-theme="dark"] .form input,
+:root[data-theme="dark"] .form select,
+:root[data-theme="dark"] .form textarea{
+  background:#242830;
+  border-color:#3a3f49;
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .theme-switch{
+  background:#111318;
+}
+
+:root[data-theme="dark"] .theme-switch button{
+  color:#9ba1ab;
+}
+
+:root[data-theme="dark"] .theme-switch button.active{
+  background:#343944;
+  color:#fff;
+  box-shadow:none;
+}
