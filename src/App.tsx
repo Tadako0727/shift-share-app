@@ -121,7 +121,7 @@ if(!me)return <div className="splash">
    {tab==='today'&&<Today shifts={shifts} members={members} me={me} edit={edit} onEdit={setDraft} onCandidate={setCandidateFor} swapRequests={swapRequests} closed={closedDays.find(c=>c.closed_date===localDate())}/>}
 {tab==='calendar'&&<CalendarView month={month} setMonth={setMonth} shifts={shifts} members={members} currentMemberId={me.id} swapRequests={swapRequests} closedDays={closedDays} onDay={setSelectedDate}/>}
    {tab==='preferences'&&<SwapBoard member={me} members={members} shifts={shifts} requests={swapRequests} onRefresh={setSwapRequests} onError={message=>setError(message)}/>}
-   {tab==='members'&&<MembersView members={members} shifts={shifts} onMember={setSelectedMember}/>
+   {tab==='members'&&<MembersView members={members} shifts={shifts} onMember={setSelectedMember}/>}
    {tab==='settings'&&authMe&&
   <SettingsView
     me={authMe}
@@ -280,7 +280,29 @@ function MembersView({
   )}
  </section>;
 }
-function SettingsView({me,members,history,edit,onToggle,onPayroll,onLogout,onRename}:{me:Member;members:Member[];history:History[];edit:boolean;onToggle:()=>void;onPayroll:()=>void;onLogout:()=>Promise<void>;onRename:(s:string)=>Promise<boolean>}){
+function SettingsView({
+  me,
+  members,
+  history,
+  edit,
+  theme,
+  onThemeChange,
+  onToggle,
+  onPayroll,
+  onLogout,
+  onRename
+}:{
+  me:Member;
+  members:Member[];
+  history:History[];
+  edit:boolean;
+  theme:'light'|'dark';
+  onThemeChange:(theme:'light'|'dark')=>void;
+  onToggle:()=>void;
+  onPayroll:()=>void;
+  onLogout:()=>Promise<void>;
+  onRename:(s:string)=>Promise<boolean>;
+}){
  const [name,setName]=useState(shownName(me));
  const [busy,setBusy]=useState(false);
  const [avatarError,setAvatarError]=useState('');
