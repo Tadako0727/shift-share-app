@@ -908,3 +908,256 @@
 :root[data-theme="dark"] .next-shift .next-crew em {
   color: #6b7280;
 }
+/* ===== Color theme selector ===== */
+
+.color-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px 8px;
+  margin-top: 14px;
+}
+
+.color-theme-option {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 8px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.color-theme-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: block;
+  border: 3px solid transparent;
+  box-shadow: 0 0 0 1px rgba(128, 128, 128, 0.25);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.color-theme-option small {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.color-theme-option.active .color-theme-swatch {
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 2px var(--panel),
+    0 0 0 4px currentColor;
+}
+
+.color-theme-option:hover .color-theme-swatch {
+  transform: scale(1.08);
+}
+/* ========================================
+   COLOR THEME SYSTEM
+   ======================================== */
+
+/* Default: Amber */
+:root {
+  --accent: #D9822B;
+  --accent-soft: #FFF0DC;
+  --accent-strong: #B86518;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(217, 130, 43, 0.22);
+}
+
+/* Ruby */
+:root[data-color-theme="ruby"] {
+  --accent: #D95757;
+  --accent-soft: #FBE9E9;
+  --accent-strong: #B84040;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(217, 87, 87, 0.22);
+}
+
+/* Amber */
+:root[data-color-theme="amber"] {
+  --accent: #D9822B;
+  --accent-soft: #FFF0DC;
+  --accent-strong: #B86518;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(217, 130, 43, 0.22);
+}
+
+/* Mustard */
+:root[data-color-theme="mustard"] {
+  --accent: #C5A52E;
+  --accent-soft: #FFF7D6;
+  --accent-strong: #8F7415;
+  --accent-text: #171C26;
+  --accent-ring: rgba(197, 165, 46, 0.24);
+}
+
+/* Forest */
+:root[data-color-theme="forest"] {
+  --accent: #3F8A62;
+  --accent-soft: #E4F3EA;
+  --accent-strong: #2D6848;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(63, 138, 98, 0.22);
+}
+
+/* Azure */
+:root[data-color-theme="azure"] {
+  --accent: #4F78C8;
+  --accent-soft: #E7EEFC;
+  --accent-strong: #365DA8;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(79, 120, 200, 0.22);
+}
+
+/* Indigo */
+:root[data-color-theme="indigo"] {
+  --accent: #6659B8;
+  --accent-soft: #ECE9FA;
+  --accent-strong: #4D4297;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(102, 89, 184, 0.22);
+}
+
+/* Violet */
+:root[data-color-theme="violet"] {
+  --accent: #A45A9D;
+  --accent-soft: #F5E8F3;
+  --accent-strong: #81447B;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(164, 90, 157, 0.22);
+}
+
+/* Mocha */
+:root[data-color-theme="mocha"] {
+  --accent: #8A6548;
+  --accent-soft: #F2E9E1;
+  --accent-strong: #684A34;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(138, 101, 72, 0.22);
+}
+
+/* Monochrome */
+:root[data-color-theme="monochrome"] {
+  --accent: #60646C;
+  --accent-soft: #ECEDEF;
+  --accent-strong: #41454C;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(96, 100, 108, 0.22);
+}
+
+/* Sakura */
+:root[data-color-theme="sakura"] {
+  --accent: #C96F86;
+  --accent-soft: #F9E8ED;
+  --accent-strong: #A55068;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(201, 111, 134, 0.22);
+}
+
+/* Sage */
+:root[data-color-theme="sage"] {
+  --accent: #718B72;
+  --accent-soft: #EAF0E9;
+  --accent-strong: #536C54;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(113, 139, 114, 0.22);
+}
+
+/* Navy */
+:root[data-color-theme="navy"] {
+  --accent: #405675;
+  --accent-soft: #E6EBF2;
+  --accent-strong: #2E405A;
+  --accent-text: #FFFFFF;
+  --accent-ring: rgba(64, 86, 117, 0.22);
+}
+
+
+/* ========================================
+   THEME COLOR SELECTOR
+   ======================================== */
+
+.color-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px 8px;
+  margin-top: 14px;
+}
+
+.color-theme-option {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 8px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.color-theme-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: block;
+  border: 2px solid transparent;
+  box-shadow: 0 0 0 1px rgba(128,128,128,.25);
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease;
+}
+
+.color-theme-option small {
+  font-size: 9px;
+  color: #888;
+}
+
+.color-theme-option.active .color-theme-swatch {
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 3px var(--paper),
+    0 0 0 5px var(--accent);
+}
+
+
+/* ========================================
+   APPLY ACCENT COLOR
+   ======================================== */
+
+/* 下部ナビ */
+nav button.active {
+  color: var(--accent);
+}
+
+/* ＋ボタン */
+.fab {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+/* 今日 */
+.calendar > button.today > b {
+  color: var(--accent);
+}
+
+/* 自分のシフトがある日 */
+.calendar > button.has-my-shift > b {
+  color: var(--accent);
+}
+
+/* 自分のアバター */
+.member-avatar.is-mine,
+.member-avatar.avatar-calendar.is-mine,
+.shift-list .member-avatar.is-mine,
+.next-crew .member-avatar.is-mine {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1.5px var(--accent-ring);
+}
