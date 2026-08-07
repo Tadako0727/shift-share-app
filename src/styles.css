@@ -763,3 +763,78 @@
   color:#fff;
   box-shadow:none;
 }
+/* ===== Dark mode readability fix ===== */
+
+:root[data-theme="dark"] .hero{
+  background:#f3f4f6;
+  color:#171c26;
+}
+
+:root[data-theme="dark"] .hero h2,
+:root[data-theme="dark"] .hero strong{
+  color:#171c26;
+}
+
+:root[data-theme="dark"] .hero span{
+  color:#6b7280;
+}
+
+:root[data-theme="dark"] .service-head h2,
+:root[data-theme="dark"] .service-head strong,
+:root[data-theme="dark"] .shift-list b,
+:root[data-theme="dark"] .shift-list time,
+:root[data-theme="dark"] .setting-card label,
+:root[data-theme="dark"] .setting-row b,
+:root[data-theme="dark"] .profile h2,
+:root[data-theme="dark"] .history summary{
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .service-head small,
+:root[data-theme="dark"] .shift-list small,
+:root[data-theme="dark"] .setting-card p,
+:root[data-theme="dark"] .setting-row small,
+:root[data-theme="dark"] .profile small,
+:root[data-theme="dark"] .profile p,
+:root[data-theme="dark"] .real-name,
+:root[data-theme="dark"] .history>div small{
+  color:#9ca3af;
+}
+
+:root[data-theme="dark"] .modal{
+  background:#1b1e24;
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .modal-head button{
+  background:#292d35;
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .preview{
+  background:#252932;
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .choice-list button{
+  background:#242830;
+  border-color:#3a3f49;
+  color:#f3f4f6;
+}
+
+:root[data-theme="dark"] .inline button,
+:root[data-theme="dark"] .primary{
+  background:#f3f4f6;
+  color:#171c26;
+}
+
+:root[data-theme="dark"] .inline input::placeholder,
+:root[data-theme="dark"] .form input::placeholder,
+:root[data-theme="dark"] .form textarea::placeholder{
+  color:#7f8792;
+}
+
+:root[data-theme="dark"] .delete{
+  background:#44251f;
+  color:#ff9b81;
+}
