@@ -178,8 +178,8 @@ return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===loca
      {d.getDay()!==6&&lunch.length>0&&
  <div className="cal-service cal-service-lunch">
   <div className="cal-avatar-grid">
-   {lunch.slice(0,4).map(avatar)}
-   {lunch.length>4&&<em className="cal-more">＋</em>}
+   {(lunch.length>4 ? lunch.slice(0,3) : lunch.slice(0,4)).map(avatar)}
+{lunch.length>4&&<em className="cal-more">＋</em>}
   </div>
  </div>
 }
@@ -187,8 +187,8 @@ return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===loca
 {dinner.length>0&&
  <div className="cal-service cal-service-dinner">
   <div className="cal-avatar-grid">
-   {dinner.slice(0,4).map(avatar)}
-   {dinner.length>4&&<em className="cal-more">＋</em>}
+   {(dinner.length>4 ? dinner.slice(0,3) : dinner.slice(0,4)).map(avatar)}
+{dinner.length>4&&<em className="cal-more">＋</em>}
   </div>
  </div>
 }
