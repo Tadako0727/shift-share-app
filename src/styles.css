@@ -280,7 +280,7 @@
 .calendar>button{
   align-items:flex-start;
   text-align:left;
-  padding:8px 6px;
+  padding:5px 5px;
 }
 
 .calendar>button>b{
@@ -550,14 +550,14 @@
 .calendar>button .cal-service{
   width:auto;
   max-width:100%;
-  margin-top:3px;
-  padding:2px 3px;
+  margin-top:1px;
+  padding:2px;
   border-radius:5px;
   display:block;
 }
 
 .calendar>button .cal-service+.cal-service{
-  margin-top:4px;
+  margin-top:2px;
 }
 
 .calendar>button .cal-avatar-grid{
