@@ -2226,29 +2226,54 @@ nav button.active {
   display: block;
 }
 /* =========================================================
-   カレンダー：Twitter風アバターリング
+   Calendar avatar stack - Twitter style FINAL
    ========================================================= */
 
-/* 各人物アイコンの外周をセル背景色で切り抜く */
-.calendar > button .member-avatar.avatar-calendar {
-  position: relative;
-
-  /* アイコン本体のサイズは変えない */
-  box-shadow: 0 0 0 2px var(--surface-1);
-
-  border-radius: 50%;
+/* 人物が並ぶ部分 */
+.calendar > button .cal-avatar-row {
+  display: flex;
+  align-items: center;
+  overflow: visible;
 }
 
 
-/* 左のアイコンほど手前 */
-.calendar > button .member-avatar.avatar-calendar:nth-of-type(1) {
+/* 人物アイコン */
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar {
+  position: relative;
+
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  min-height: 15px;
+  flex: 0 0 15px;
+
+  border-radius: 50%;
+
+  /* アイコン周囲をセル背景色で切り抜く */
+  box-shadow: 0 0 0 2px var(--surface-1);
+
+  /* ★ここで右隣を左へ引っ張る */
+  margin-left: -4px !important;
+
+  overflow: hidden;
+}
+
+
+/* ★最初の人物だけは重ねない */
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:first-child {
+  margin-left: 0 !important;
+}
+
+
+/* ★左にあるものほど手前 */
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-child(1) {
   z-index: 30;
 }
 
-.calendar > button .member-avatar.avatar-calendar:nth-of-type(2) {
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-child(2) {
   z-index: 20;
 }
 
-.calendar > button .member-avatar.avatar-calendar:nth-of-type(3) {
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-child(3) {
   z-index: 10;
 }
