@@ -2314,7 +2314,24 @@ nav button.active {
   object-fit: cover;
 }
 
-/* 各行の最初の人物アイコンだけ通常位置に戻す */
-.calendar > button .cal-avatar-row > .member-avatar.avatar-calendar:first-of-type {
+/* =========================================================
+   カレンダーアバター：重なり順を確実に指定
+   ========================================================= */
+
+/* 先頭は通常位置＋一番手前 */
+.calendar > button .member-avatar.avatar-calendar.stack-0 {
   margin-left: 0 !important;
+  z-index: 30 !important;
+}
+
+/* 2人目 */
+.calendar > button .member-avatar.avatar-calendar.stack-1 {
+  margin-left: -4px !important;
+  z-index: 20 !important;
+}
+
+/* 3人目 */
+.calendar > button .member-avatar.avatar-calendar.stack-2 {
+  margin-left: -4px !important;
+  z-index: 10 !important;
 }
