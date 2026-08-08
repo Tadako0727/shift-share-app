@@ -838,7 +838,7 @@ main {
 .week,
 .calendar {
   display: grid;
-  grid-template-columns: .72fr repeat(5, 1fr) .82fr;
+  grid-template-columns: .55fr repeat(5, 1fr) .55fr;
 }
 
 .week span {
