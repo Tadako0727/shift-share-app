@@ -2133,18 +2133,17 @@ nav button.active {
     height: 32px;
   }
 }
-/* カレンダー：アバター間の境界を背景色で作る */
+/* カレンダー：人アイコン同士に少しだけ隙間を作る */
+.calendar > button .cal-avatar-row {
+  gap: 2px;
+}
+
+/* アバターを重ねない */
 .calendar > button .member-avatar.avatar-calendar {
-  margin-left: -3px;
-  border: 2px solid var(--surface-1);
-  box-sizing: border-box;
+  margin-left: 0 !important;
 }
 
-.calendar > button .member-avatar.avatar-calendar:first-child {
-  margin-left: 0;
-}
-
-/* 太陽・月とアバターの間隔 */
+/* 太陽・月と1人目は近め */
 .calendar > button .cal-service-icon {
-  margin-right: 4px;
+  margin-right: 2px;
 }
