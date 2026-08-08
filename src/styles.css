@@ -1087,12 +1087,19 @@ main {
 }
 
 .closed-dot {
-  padding: 2px 4px !important;
+  padding: 2px 5px !important;
 
-  border-radius: 6px !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 5px !important;
 
-  background: var(--theme-soft) !important;
-  color: var(--accent-strong) !important;
+  background: var(--theme-soft-2) !important;
+  color: var(--accent) !important;
+
+  font-family: inherit !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
 }
 
 /* 先月・来月のシフトは存在感を弱める */
