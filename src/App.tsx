@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState} from 'react';
-import {CalendarDays,ChevronLeft,ChevronRight,Clock3,History as HistoryIcon,Home,Settings,Users,UtensilsCrossed,Moon,X,Plus,Pencil,Trash2,Upload,CalendarOff,LogOut,HeartHandshake,Calculator} from 'lucide-react';
+import {CalendarDays,ChevronLeft,ChevronRight,Clock3,History as HistoryIcon,Home,Settings,Users,UtensilsCrossed,Moon,X,Sun,Plus,Pencil,Trash2,Upload,CalendarOff,LogOut,HeartHandshake,Calculator} from 'lucide-react';
 import {ClosedDay,configured,History,includesKind,localDate,Member,parseShiftBoard,serviceRange,Shift,shownName,supabase} from './lib';
 import Login from './Login';
 import SwapBoard,{CandidateSheet} from './SwapBoard';
@@ -252,20 +252,24 @@ function CalendarView({month,setMonth,shifts,members,currentMemberId,swapRequest
 return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===localDate()?'today':''} ${mine?'has-my-shift':''} ${quietSunday?'quiet-sunday':''}`} onClick={()=>onDay(ds)}>
     <b>{d.getDate()}</b>
     {closed?<span className="closed-dot">休業</span>:<>
-     {d.getDay()!==6&&lunch.length>0&&
+    {d.getDay()!==6&&lunch.length>0&&
  <div className="cal-service cal-service-lunch">
+  <Sun className="cal-service-icon" />
+
   <div className="cal-avatar-grid">
-   {(lunch.length>4 ? lunch.slice(0,3) : lunch.slice(0,4)).map(avatar)}
-{lunch.length>4&&<em className="cal-more">＋</em>}
+   {(lunch.length>=4 ? lunch.slice(0,2) : lunch.slice(0,3)).map(avatar)}
+   {lunch.length>=4&&<em className="cal-more">…</em>}
   </div>
  </div>
 }
 
 {dinner.length>0&&
  <div className="cal-service cal-service-dinner">
+  <Moon className="cal-service-icon" />
+
   <div className="cal-avatar-grid">
-   {(dinner.length>4 ? dinner.slice(0,3) : dinner.slice(0,4)).map(avatar)}
-{dinner.length>4&&<em className="cal-more">＋</em>}
+   {(dinner.length>=4 ? dinner.slice(0,2) : dinner.slice(0,3)).map(avatar)}
+   {dinner.length>=4&&<em className="cal-more">…</em>}
   </div>
  </div>
 }
