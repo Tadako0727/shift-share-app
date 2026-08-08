@@ -2265,7 +2265,7 @@ nav button.active {
   border-radius: 50%;
 
   /* 右側のアバターを左へ寄せる */
-  margin-left: -7px !important;
+  margin-left: -4px !important;
 
   /*
    * アイコンより4px大きい「セル背景色の円」を作る。
