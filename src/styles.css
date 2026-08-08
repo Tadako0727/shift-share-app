@@ -2189,34 +2189,7 @@ nav button.active {
 }
 
 
-/* =========================================================
-   アイコンより少し大きい「背景色の円」
-   ========================================================= */
 
-.calendar > button .member-avatar.avatar-calendar::before {
-  content: "";
-
-  position: absolute;
-
-  /* アイコンと完全に同じ中心 */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  /* 15pxアイコンより4px大きい */
-  width: 19px;
-  height: 19px;
-
-  border-radius: 50%;
-
-  /* カレンダーセルの背景色 */
-  background: var(--surface-1);
-
-  /* アイコンの後ろ */
-  z-index: -1;
-
-  pointer-events: none;
-}
 
 
 /* =========================================================
@@ -2251,4 +2224,31 @@ nav button.active {
   object-fit: cover;
 
   display: block;
+}
+/* =========================================================
+   カレンダー：Twitter風アバターリング
+   ========================================================= */
+
+/* 各人物アイコンの外周をセル背景色で切り抜く */
+.calendar > button .member-avatar.avatar-calendar {
+  position: relative;
+
+  /* アイコン本体のサイズは変えない */
+  box-shadow: 0 0 0 2px var(--surface-1);
+
+  border-radius: 50%;
+}
+
+
+/* 左のアイコンほど手前 */
+.calendar > button .member-avatar.avatar-calendar:nth-of-type(1) {
+  z-index: 30;
+}
+
+.calendar > button .member-avatar.avatar-calendar:nth-of-type(2) {
+  z-index: 20;
+}
+
+.calendar > button .member-avatar.avatar-calendar:nth-of-type(3) {
+  z-index: 10;
 }
