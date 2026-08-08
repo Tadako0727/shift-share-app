@@ -2313,3 +2313,8 @@ nav button.active {
   border-radius: 50%;
   object-fit: cover;
 }
+
+/* 各行の最初の人物アイコンだけ通常位置に戻す */
+.calendar > button .cal-avatar-row > .member-avatar.avatar-calendar:first-of-type {
+  margin-left: 0 !important;
+}
