@@ -2349,3 +2349,7 @@ nav button.active {
 .calendar > button .member-avatar.avatar-calendar {
   box-shadow: 0 0 0 1px var(--surface);
 }
+/* カレンダーのアバター自体は常に不透明 */
+.calendar > button .member-avatar.avatar-calendar {
+  opacity: 1 !important;
+}
