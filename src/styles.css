@@ -2147,3 +2147,108 @@ nav button.active {
 .calendar > button .cal-service-icon {
   margin-right: 2px;
 }
+/* =========================================================
+   Calendar avatar stack
+   左側のアイコンを最前面にして重ねる
+   ========================================================= */
+
+/* 1行全体 */
+.calendar > button .cal-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow: visible;
+}
+
+
+/* =========================================================
+   各アバター
+   ========================================================= */
+
+.calendar > button .member-avatar.avatar-calendar {
+  position: relative;
+
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  min-height: 15px;
+  flex: 0 0 15px;
+
+  border-radius: 50%;
+
+  /* 次のアイコンを左へ寄せて重ねる */
+  margin-left: -4px;
+
+  overflow: visible;
+}
+
+
+/* 一番左だけ通常位置から開始 */
+.calendar > button .member-avatar.avatar-calendar:first-of-type {
+  margin-left: 0;
+}
+
+
+/* =========================================================
+   アイコンより少し大きい「背景色の円」
+   ========================================================= */
+
+.calendar > button .member-avatar.avatar-calendar::before {
+  content: "";
+
+  position: absolute;
+
+  /* アイコンと完全に同じ中心 */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* 15pxアイコンより4px大きい */
+  width: 19px;
+  height: 19px;
+
+  border-radius: 50%;
+
+  /* カレンダーセルの背景色 */
+  background: var(--surface-1);
+
+  /* アイコンの後ろ */
+  z-index: -1;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   左側ほど前面
+   ========================================================= */
+
+.calendar > button .member-avatar.avatar-calendar:nth-of-type(1) {
+  z-index: 30;
+}
+
+.calendar > button .member-avatar.avatar-calendar:nth-of-type(2) {
+  z-index: 20;
+}
+
+.calendar > button .member-avatar.avatar-calendar:nth-of-type(3) {
+  z-index: 10;
+}
+
+
+/* =========================================================
+   アバター画像本体
+   ========================================================= */
+
+.calendar > button .member-avatar.avatar-calendar img {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  height: 100%;
+
+  border-radius: 50%;
+  object-fit: cover;
+
+  display: block;
+}
