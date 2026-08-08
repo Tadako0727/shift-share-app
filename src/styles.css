@@ -850,17 +850,17 @@ main {
 }
 
 .calendar > button {
-  height: 98px;
-  min-height: 98px;
+  height: 82px;
+  min-height: 82px;
 
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 3px;
 
   overflow: hidden;
 
-  padding: 5px;
+  padding: 4px;
 
   border: 0;
   border-top: 1px solid var(--line);
@@ -871,7 +871,6 @@ main {
 
   text-align: left;
 }
-
 .calendar > button:nth-child(7n) {
   border-right: 0;
 }
