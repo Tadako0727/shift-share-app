@@ -1111,6 +1111,108 @@ main {
 .calendar > button.outside .member-avatar {
   opacity: 0.55;
 }
+
+/* ==========================================
+   Calendar service row
+   ☀ / 🌙 + 最大3枠
+   ========================================== */
+
+.calendar > button .cal-service {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 0;
+  margin: 2px 0;
+
+  background: transparent;
+  border: 0;
+}
+
+/* 昼夜の背景ハイライトを完全になくす */
+.calendar > button .cal-service-lunch,
+.calendar > button .cal-service-dinner {
+  background: transparent;
+}
+
+/* ☀ / 🌙 */
+.calendar > button .cal-service-icon {
+  width: 11px;
+  height: 11px;
+  min-width: 11px;
+
+  margin-right: 2px;
+
+  color: var(--text-secondary);
+  stroke-width: 2.2;
+}
+
+/* アバター横一列 */
+.calendar > button .cal-avatar-grid {
+  display: flex;
+  align-items: center;
+
+  width: max-content;
+  max-width: calc(100% - 13px);
+
+  padding: 0;
+  gap: 0;
+}
+
+/* カレンダー内アバター */
+.calendar > button .member-avatar.avatar-calendar {
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  min-height: 15px;
+  flex: 0 0 15px;
+
+  font-size: 6px;
+}
+
+/* Twitter/X風に少し重ねる */
+.calendar > button .cal-avatar-grid
+.member-avatar + .member-avatar {
+  margin-left: -4px;
+}
+
+/* 4人以上の「…」 */
+.calendar > button .cal-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+
+  margin-left: -3px;
+
+  background: transparent;
+  color: var(--text-secondary);
+
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* 昼 */
+.calendar > button .cal-service-lunch .cal-service-icon {
+  color: var(--lunch);
+}
+
+/* 夜 */
+.calendar > button .cal-service-dinner .cal-service-icon {
+  color: var(--dinner);
+}
+
+/* 先月・来月は全部まとめて薄くする */
+.calendar > button.outside .cal-service {
+  opacity: 0.38;
+}
 /* =========================================================
    12. MEMBERS
    ========================================================= */
