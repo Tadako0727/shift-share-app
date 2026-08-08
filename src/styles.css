@@ -968,17 +968,60 @@ main {
   background: #3B5FA8;
 }
 
+/* アイコンの縁取りに勤務帯の背景色を使う */
+.cal-service-lunch {
+  --cal-service-bg: #F3C45B;
+}
+
+.cal-service-dinner {
+  --cal-service-bg: #527BC7;
+}
+
+:root[data-theme="dark"] .cal-service-lunch {
+  --cal-service-bg: #C8952F;
+}
+
+:root[data-theme="dark"] .cal-service-dinner {
+  --cal-service-bg: #3B5FA8;
+}
+
+/* ========================================
+   Calendar avatar row
+   昼・夜それぞれ横1列で重ねて表示
+======================================== */
+
 .calendar > button .cal-avatar-grid {
-  width: max-content;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  width: 100%;
   max-width: 100%;
 
-  display: grid;
-  grid-template-columns: repeat(2, 15px);
-  grid-auto-rows: 15px;
-  align-content: start;
-  gap: 1px;
-
   padding: 0;
+  overflow: hidden;
+}
+
+/* カレンダー内のメンバーアイコン */
+.calendar > button .member-avatar.avatar-calendar {
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  min-height: 15px;
+  flex: 0 0 15px;
+
+  margin-left: -4px;
+
+  border-radius: 50%;
+  border: 2px solid var(--cal-service-bg);
+
+  font-size: 6px;
+  font-weight: 900;
+}
+
+/* 先頭だけ左にずらさない */
+.calendar > button .member-avatar.avatar-calendar:first-child {
+  margin-left: 0;
 }
 
 .member-avatar.avatar-calendar {
@@ -1976,16 +2019,6 @@ nav button.active {
 
     width: 50px;
     height: 50px;
-  }
-
-  .member-avatar.avatar-calendar {
-    width: 15px;
-    height: 15px;
-    min-width: 15px;
-    min-height: 15px;
-    flex-basis: 15px;
-
-    font-size: 6px;
   }
 
   .color-theme-grid {
