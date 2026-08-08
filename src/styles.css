@@ -2340,5 +2340,5 @@ nav button.active {
    ========================================================= */
 
 .calendar > button .member-avatar.avatar-calendar {
-  box-shadow: 0 0 0 2px var(--surface);
+  box-shadow: 0 0 0 1px var(--surface);
 }
