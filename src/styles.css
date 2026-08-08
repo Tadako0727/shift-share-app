@@ -2148,20 +2148,6 @@ nav button.active {
   margin-right: 2px;
 }
 /* =========================================================
-   Calendar avatar stack
-   左側のアイコンを最前面にして重ねる
-   ========================================================= */
-
-/* 1行全体 */
-.calendar > button .cal-avatar-row {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  overflow: visible;
-}
-
-
-/* =========================================================
    各アバター
    ========================================================= */
 
@@ -2226,18 +2212,20 @@ nav button.active {
   display: block;
 }
 /* =========================================================
-   Calendar avatar stack - Twitter style FINAL
+   Calendar avatar stack
+   左のアバターほど手前に表示
    ========================================================= */
 
-/* 人物が並ぶ部分 */
+/* アバターが並ぶ行 */
 .calendar > button .cal-avatar-row {
   display: flex;
   align-items: center;
+  gap: 0;
   overflow: visible;
 }
 
 
-/* 人物アイコン */
+/* 各アバター */
 .calendar > button .cal-avatar-row .member-avatar.avatar-calendar {
   position: relative;
 
@@ -2249,31 +2237,52 @@ nav button.active {
 
   border-radius: 50%;
 
-  /* アイコン周囲をセル背景色で切り抜く */
-  box-shadow: 0 0 0 2px var(--surface-1);
-
-  /* ★ここで右隣を左へ引っ張る */
+  /* 右側のアバターを左へ寄せる */
   margin-left: -4px !important;
 
-  overflow: hidden;
+  /*
+   * アイコンより4px大きい「セル背景色の円」を作る。
+   * これによって後ろのアイコンが透けない。
+   */
+  box-shadow: 0 0 0 2px var(--surface-1);
+
+  overflow: visible;
 }
 
 
-/* ★最初の人物だけは重ねない */
-.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:first-child {
+/* 一番左のアバターだけ通常位置 */
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:first-of-type {
   margin-left: 0 !important;
 }
 
 
-/* ★左にあるものほど手前 */
-.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-child(1) {
+/* =========================================================
+   左にあるアバターほど前面
+   ========================================================= */
+
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-of-type(1) {
   z-index: 30;
 }
 
-.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-child(2) {
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-of-type(2) {
   z-index: 20;
 }
 
-.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-child(3) {
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-of-type(3) {
   z-index: 10;
+}
+
+
+/* =========================================================
+   アバター画像本体
+   ========================================================= */
+
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  border-radius: 50%;
+  object-fit: cover;
 }
