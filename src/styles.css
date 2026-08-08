@@ -927,61 +927,54 @@ main {
   font-weight: 900;
   line-height: 1;
 }
-
-/* Fixed semantic lunch/dinner colors */
+/* ========================================
+   Calendar service row
+   太陽/月 + アバター
+======================================== */
 
 .calendar > button .cal-service {
-  width: auto;
-  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 
-  display: block;
-  flex: none;
-  align-self: flex-start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 
   min-height: 0;
-  height: auto;
+  height: 17px;
 
-  margin-top: 1px;
-  padding: 2px;
+  margin: 1px 0;
+  padding: 0;
 
-  border-radius: 5px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 
-.calendar > button .cal-service + .cal-service {
-  margin-top: 2px;
+.calendar > button .cal-service-lunch,
+.calendar > button .cal-service-dinner,
+:root[data-theme="dark"] .calendar > button .cal-service-lunch,
+:root[data-theme="dark"] .calendar > button .cal-service-dinner {
+  background: transparent;
 }
 
-.cal-service-lunch {
-  background: color-mix(in srgb, var(--lunch) 24%, transparent);
+/* 太陽・月 */
+.calendar > button .cal-service-icon {
+  width: 11px;
+  height: 11px;
+  min-width: 11px;
+  flex: 0 0 11px;
+
+  margin-right: 2px;
 }
 
-.cal-service-dinner {
-  background: color-mix(in srgb, var(--dinner) 20%, transparent);
+.calendar > button .cal-service-lunch .cal-service-icon {
+  color: var(--lunch);
 }
 
-:root[data-theme="dark"] .cal-service-lunch {
-  background: #B88732;
-}
-
-:root[data-theme="dark"] .cal-service-dinner {
-  background: #3B5FA8;
-}
-
-/* アイコンの縁取りに勤務帯の背景色を使う */
-.cal-service-lunch {
-  --cal-service-bg: #F3C45B;
-}
-
-.cal-service-dinner {
-  --cal-service-bg: #527BC7;
-}
-
-:root[data-theme="dark"] .cal-service-lunch {
-  --cal-service-bg: #C8952F;
-}
-
-:root[data-theme="dark"] .cal-service-dinner {
-  --cal-service-bg: #3B5FA8;
+.calendar > button .cal-service-dinner .cal-service-icon {
+  color: var(--dinner);
 }
 
 /* ========================================
@@ -1012,7 +1005,7 @@ main {
   margin-left: -4px;
 
   border-radius: 50%;
-  border: 2px solid var(--cal-service-bg);
+  border: 1px solid var(--surface-1);
 
   font-size: 6px;
   font-weight: 900;
