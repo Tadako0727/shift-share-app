@@ -1102,6 +1102,15 @@ main {
   color: var(--accent-strong) !important;
 }
 
+/* 先月・来月のシフトは存在感を弱める */
+.calendar > button.outside .cal-service {
+  opacity: 0.4;
+}
+
+/* アバター・イニシャルも同様に薄くする */
+.calendar > button.outside .member-avatar {
+  opacity: 0.55;
+}
 /* =========================================================
    12. MEMBERS
    ========================================================= */
