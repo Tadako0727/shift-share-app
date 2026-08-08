@@ -1206,6 +1206,21 @@ main {
 .calendar > button.outside .cal-service {
   opacity: 0.38;
 }
+/* カレンダー：アバター間の境界を背景色で作る */
+.calendar > button .member-avatar.avatar-calendar {
+  margin-left: -3px;
+  border: 2px solid var(--surface-1);
+  box-sizing: border-box;
+}
+
+.calendar > button .member-avatar.avatar-calendar:first-child {
+  margin-left: 0;
+}
+
+/* 太陽・月とアバターの間隔 */
+.calendar > button .cal-service-icon {
+  margin-right: 4px;
+}
 /* =========================================================
    12. MEMBERS
    ========================================================= */
