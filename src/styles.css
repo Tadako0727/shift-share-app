@@ -2162,12 +2162,39 @@ nav button.active {
 
   border-radius: 50%;
 
-  /* 次のアイコンを左へ寄せて重ねる */
-  margin-left: -4px;
+  /* アイコン同士を重ねる */
+  margin-left: -7px !important;
 
-  overflow: visible;
+  /* 周囲にセル背景色の縁を作る */
+  box-shadow: 0 0 0 2px var(--surface-1);
+
+  overflow: hidden;
 }
 
+/* 一番左のアイコンだけ通常位置 */
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:first-of-type {
+  margin-left: 0 !important;
+}
+
+/* アイコン間の余計なgapを消す */
+.calendar > button .cal-avatar-row {
+  display: flex !important;
+  align-items: center;
+  gap: 0 !important;
+}
+
+/* 左側のアイコンほど手前にする */
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-of-type(1) {
+  z-index: 30;
+}
+
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-of-type(2) {
+  z-index: 20;
+}
+
+.calendar > button .cal-avatar-row .member-avatar.avatar-calendar:nth-of-type(3) {
+  z-index: 10;
+}
 
 /* 一番左だけ通常位置から開始 */
 .calendar > button .member-avatar.avatar-calendar:first-of-type {
@@ -2238,7 +2265,7 @@ nav button.active {
   border-radius: 50%;
 
   /* 右側のアバターを左へ寄せる */
-  margin-left: -4px !important;
+  margin-left: -7px !important;
 
   /*
    * アイコンより4px大きい「セル背景色の円」を作る。
