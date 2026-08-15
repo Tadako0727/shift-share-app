@@ -15,6 +15,24 @@ const MEMBER_KEY='shiftcal-member-id';
 const THEME_KEY='shiftcal-theme';
 const COLOR_THEME_KEY='shiftcal-color-theme';
 const EDIT_KEY='shiftcal-edit-mode';
+const DEMO_MODE=import.meta.env.DEV&&!configured;
+const DEMO_MEMBERS:Member[]=[
+ {id:'demo-1',name:'佐藤',display_name:'佐藤',avatar_url:'/icon.svg',is_host:true},
+ {id:'demo-2',name:'鈴木',display_name:'鈴木',avatar_url:'/icon.svg',is_host:false},
+ {id:'demo-3',name:'高橋',display_name:'高橋',avatar_url:'/icon.svg',is_host:false},
+ {id:'demo-4',name:'田中',display_name:'田中',avatar_url:'/icon.svg',is_host:false}
+];
+const demoYear=new Date().getFullYear(),demoMonth=new Date().getMonth();
+const demoDay=(day:number)=>`${demoYear}-${String(demoMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+const demoFirstDay=new Date(demoYear,demoMonth,1).getDay();
+const demoSunday=1+(7-demoFirstDay)%7,demoSaturday=1+(6-demoFirstDay+7)%7;
+const demoWeekday=demoSunday+1;
+const DEMO_SHIFTS:Shift[]=[
+ ...DEMO_MEMBERS.map((member,index)=>({id:`demo-lunch-${index}`,member_id:member.id,shift_date:demoDay(demoSunday),start_time:'11:00',end_time:'15:00'})),
+ ...DEMO_MEMBERS.map((member,index)=>({id:`demo-dinner-${index}`,member_id:member.id,shift_date:demoDay(demoSaturday),start_time:'17:00',end_time:'23:00'})),
+ ...DEMO_MEMBERS.slice(0,3).map((member,index)=>({id:`demo-weekday-lunch-${index}`,member_id:member.id,shift_date:demoDay(demoWeekday),start_time:'11:00',end_time:'15:00'})),
+ ...DEMO_MEMBERS.slice(1,4).map((member,index)=>({id:`demo-weekday-dinner-${index}`,member_id:member.id,shift_date:demoDay(demoWeekday),start_time:'17:00',end_time:'23:00'}))
+];
 
 type ColorTheme =
   | 'ruby'
@@ -47,8 +65,8 @@ const COLOR_THEMES:{id:ColorTheme;label:string;color:string}[]=[
 const jaDate=(s:string,detail=false)=>new Intl.DateTimeFormat('ja-JP',detail?{month:'long',day:'numeric',weekday:'short'}:{month:'numeric',day:'numeric',weekday:'short'}).format(new Date(`${s}T12:00:00`));
 
 export default function App(){
- const [members,setMembers]=useState<Member[]>([]),[shifts,setShifts]=useState<Shift[]>([]),[auditHistory,setHistory]=useState<History[]>([]),[closedDays,setClosedDays]=useState<ClosedDay[]>([]);
- const [meId,setMeId]=useState(localStorage.getItem(MEMBER_KEY)||''),[tab,setTab]=useState<Tab>('today'),[loading,setLoading]=useState(true),[signedIn,setSignedIn]=useState(false),[error,setError]=useState('');
+ const [members,setMembers]=useState<Member[]>(DEMO_MODE?DEMO_MEMBERS:[]),[shifts,setShifts]=useState<Shift[]>(DEMO_MODE?DEMO_SHIFTS:[]),[auditHistory,setHistory]=useState<History[]>([]),[closedDays,setClosedDays]=useState<ClosedDay[]>([]);
+ const [meId,setMeId]=useState(DEMO_MODE?DEMO_MEMBERS[0].id:localStorage.getItem(MEMBER_KEY)||''),[tab,setTab]=useState<Tab>(DEMO_MODE?'calendar':'today'),[loading,setLoading]=useState(!DEMO_MODE),[signedIn,setSignedIn]=useState(DEMO_MODE),[error,setError]=useState('');
  const [edit,setEdit]=useState(sessionStorage.getItem(EDIT_KEY)==='1'),[month,setMonth]=useState(()=>new Date()),[selectedDate,setSelectedDate]=useState<string|null>(null),[selectedMember,setSelectedMember]=useState<string|null>(null),[draft,setDraft]=useState<Draft|null>(null),[candidateFor,setCandidateFor]=useState<string|null>(null),[bulk,setBulk]=useState(false),[payrollOpen,setPayrollOpen]=useState(false);
  const [swapRequests,setSwapRequests]=useState<SwapRequest[]>([]);
  const [theme,setTheme]=useState<'light'|'dark'>(()=>
@@ -71,7 +89,7 @@ export default function App(){
 },[colorTheme]);
  const authMe=members.find(m=>m.id===meId),me=authMe;
  const load=async()=>{const [m,s,h,c]=await Promise.all([supabase.from('members').select('id,name,display_name,avatar_url,is_host').order('name'),supabase.from('shifts').select('*').order('shift_date').order('start_time'),supabase.from('shift_history').select('*').order('created_at',{ascending:false}).limit(50),supabase.from('closed_days').select('closed_date,label,kind').order('closed_date')]);if(m.error||s.error||c.error){setError(m.error?.message||s.error?.message||c.error?.message||'読込に失敗しました');return}setMembers(m.data||[]);setShifts(s.data||[]);setHistory(h.data||[]);setClosedDays((c.data||[]) as ClosedDay[])};
- useEffect(()=>{let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){const delays = [
+ useEffect(()=>{if(DEMO_MODE)return;let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){const delays = [
   500,
   1000,
   2000
@@ -141,8 +159,8 @@ if (!mineData) {
 
   return;
 }if(!active)return;choose(mineData.id);setSignedIn(true);await load();if(active)setLoading(false)};void start();const {data:listener}=supabase.auth.onAuthStateChange(event=>{if(event==='SIGNED_IN')setTimeout(()=>void start(),0);if(event==='SIGNED_OUT'&&active){setSignedIn(false);setLoading(false)}});return()=>{active=false;listener.subscription.unsubscribe()}},[]);
- useEffect(()=>{if(loading||!signedIn)return;const refreshSwaps=()=>void readSwapRequests().then(setSwapRequests).catch(e=>setError(e.message));void refreshSwaps();const channel=supabase.channel('shiftcal-live').on('postgres_changes',{event:'*',schema:'public',table:'shifts'},load).on('postgres_changes',{event:'*',schema:'public',table:'members'},load).on('postgres_changes',{event:'*',schema:'public',table:'closed_days'},load).on('postgres_changes',{event:'*',schema:'public',table:'swap_requests'},refreshSwaps).on('postgres_changes',{event:'*',schema:'public',table:'swap_candidates'},refreshSwaps).subscribe();return()=>{void supabase.removeChannel(channel)}},[loading,signedIn]);
- useEffect(()=>{if(!signedIn)return;void supabase.rpc('current_member_profile').maybeSingle().then(({data})=>{const member=data as Member|null;if(member&&member.id!==meId){localStorage.setItem(MEMBER_KEY,member.id);setMeId(member.id)}})},[signedIn,meId]);
+ useEffect(()=>{if(DEMO_MODE||loading||!signedIn)return;const refreshSwaps=()=>void readSwapRequests().then(setSwapRequests).catch(e=>setError(e.message));void refreshSwaps();const channel=supabase.channel('shiftcal-live').on('postgres_changes',{event:'*',schema:'public',table:'shifts'},load).on('postgres_changes',{event:'*',schema:'public',table:'members'},load).on('postgres_changes',{event:'*',schema:'public',table:'closed_days'},load).on('postgres_changes',{event:'*',schema:'public',table:'swap_requests'},refreshSwaps).on('postgres_changes',{event:'*',schema:'public',table:'swap_candidates'},refreshSwaps).subscribe();return()=>{void supabase.removeChannel(channel)}},[loading,signedIn]);
+ useEffect(()=>{if(DEMO_MODE||!signedIn)return;void supabase.rpc('current_member_profile').maybeSingle().then(({data})=>{const member=data as Member|null;if(member&&member.id!==meId){localStorage.setItem(MEMBER_KEY,member.id);setMeId(member.id)}})},[signedIn,meId]);
  useEffect(()=>{const update=(event:Event)=>setSwapRequests((event as CustomEvent<SwapRequest[]>).detail);window.addEventListener(SWAP_EVENT,update);return()=>window.removeEventListener(SWAP_EVENT,update)},[]);
  const choose=(id:string)=>{localStorage.setItem(MEMBER_KEY,id);setMeId(id)};
  const toggleEdit=()=>{const next=!edit;next?sessionStorage.setItem(EDIT_KEY,'1'):sessionStorage.removeItem(EDIT_KEY);setEdit(next)};
@@ -245,6 +263,7 @@ function CalendarView({month,setMonth,shifts,members,currentMemberId,swapRequest
   <div className="calendar">{days.map(d=>{
    const ds=localDate(d),closed=closedDays.find(c=>c.closed_date===ds),rows=shifts.filter(s=>s.shift_date===ds);
    const lunch=rows.filter(s=>includesKind(s,'lunch')),dinner=rows.filter(s=>includesKind(s,'dinner'));
+   const weekend=d.getDay()===0||d.getDay()===6;
    const swapping=rows.some(s=>swapRequests.some(r=>r.shiftId===s.id&&r.status==='open'));
    const mine=rows.some(s=>s.member_id===currentMemberId);
    const quietSunday=d.getDay()===0&&rows.length===0&&!closed;
@@ -256,9 +275,9 @@ return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===loca
  <div className="cal-service cal-service-lunch">
   <Sun className="cal-service-icon" />
 
-  <div className="cal-avatar-grid">
-   {(lunch.length>=4 ? lunch.slice(0,2) : lunch.slice(0,3)).map(avatar)}
-   {lunch.length>=4&&<em className="cal-more">…</em>}
+  <div className={`cal-avatar-grid ${weekend?'compact-weekend':''}`}>
+   {(weekend?lunch.slice(0,1):lunch.length>=4?lunch.slice(0,2):lunch.slice(0,3)).map(avatar)}
+   {weekend&&lunch.length>1?<em className="cal-weekend-count">+{lunch.length-1}</em>:!weekend&&lunch.length>=4?<em className="cal-more">…</em>:null}
   </div>
  </div>
 }
@@ -267,9 +286,9 @@ return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===loca
  <div className="cal-service cal-service-dinner">
   <Moon className="cal-service-icon" />
 
-  <div className="cal-avatar-grid">
-   {(dinner.length>=4 ? dinner.slice(0,2) : dinner.slice(0,3)).map(avatar)}
-   {dinner.length>=4&&<em className="cal-more">…</em>}
+  <div className={`cal-avatar-grid ${weekend?'compact-weekend':''}`}>
+   {(weekend?dinner.slice(0,1):dinner.length>=4?dinner.slice(0,2):dinner.slice(0,3)).map(avatar)}
+   {weekend&&dinner.length>1?<em className="cal-weekend-count">+{dinner.length-1}</em>:!weekend&&dinner.length>=4?<em className="cal-more">…</em>:null}
   </div>
  </div>
 }
