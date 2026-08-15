@@ -893,6 +893,10 @@ main {
    ========================================================= */
 
 .calendar-card {
+  /* Keep calendar avatar stacking inside the card so the fixed bottom bar
+     always stays in front while the page scrolls. */
+  isolation: isolate;
+
   overflow: hidden;
 
   border: 1px solid var(--line);
