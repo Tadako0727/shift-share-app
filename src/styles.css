@@ -1185,10 +1185,16 @@ main {
   content: '定休';
 
   margin-top: auto;
+  align-self: center;
+
+  width: 100%;
 
   color: var(--text-muted);
   font-size: 8px;
   font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .closed-dot {
