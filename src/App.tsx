@@ -88,7 +88,7 @@ export default function App(){
   localStorage.setItem(COLOR_THEME_KEY,colorTheme);
 },[colorTheme]);
  const authMe=members.find(m=>m.id===meId),me=authMe;
- const load=async()=>{const [m,s,h,c]=await Promise.all([supabase.from('members').select('id,name,display_name,avatar_url,is_host').order('name'),supabase.from('shifts').select('*').order('shift_date').order('start_time'),supabase.from('shift_history').select('*').order('created_at',{ascending:false}).limit(50),supabase.from('closed_days').select('closed_date,label,kind').order('closed_date')]);if(m.error||s.error||c.error){setError(m.error?.message||s.error?.message||c.error?.message||'読込に失敗しました');return}setMembers(m.data||[]);setShifts(s.data||[]);setHistory(h.data||[]);setClosedDays((c.data||[]) as ClosedDay[])};
+ const load=async()=>{const [m,s,h,c]=await Promise.all([supabase.from('members').select('id,name,display_name,avatar_url,is_host').eq('active',true).order('name'),supabase.from('shifts').select('*').order('shift_date').order('start_time'),supabase.from('shift_history').select('*').order('created_at',{ascending:false}).limit(50),supabase.from('closed_days').select('closed_date,label,kind').order('closed_date')]);if(m.error||s.error||c.error){setError(m.error?.message||s.error?.message||c.error?.message||'読込に失敗しました');return}setMembers(m.data||[]);setShifts(s.data||[]);setHistory(h.data||[]);setClosedDays((c.data||[]) as ClosedDay[])};
  useEffect(()=>{if(DEMO_MODE)return;let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){const delays = [
   500,
   1000,
@@ -180,7 +180,7 @@ if(!me)return <div className="splash">
    {tab==='today'&&<Today shifts={shifts} members={members} me={me} edit={edit} onEdit={setDraft} onCandidate={setCandidateFor} swapRequests={swapRequests} closed={closedDays.find(c=>c.closed_date===localDate())}/>}
 {tab==='calendar'&&<CalendarView month={month} setMonth={setMonth} shifts={shifts} members={members} currentMemberId={me.id} swapRequests={swapRequests} closedDays={closedDays} onDay={setSelectedDate}/>}
    {tab==='preferences'&&<SwapBoard member={me} members={members} shifts={shifts} requests={swapRequests} onRefresh={setSwapRequests} onError={message=>setError(message)}/>}
-   {tab==='members'&&<MembersView members={members} shifts={shifts} onMember={setSelectedMember}/>}
+   {tab==='members'&&<MembersView members={members} shifts={shifts} me={me} onMember={setSelectedMember} onAdd={name=>call('host_add_member',{p_name:name})} onDisable={member=>{if(confirm(`${shownName(member)}さんをメンバー一覧から削除しますか？\n過去のシフト履歴は残ります。`))call('host_disable_member',{p_member_id:member.id})}}/>}
    {tab==='settings'&&authMe&&
   <SettingsView
     me={authMe}
@@ -301,13 +301,26 @@ return <button key={ds} className={`${d.getMonth()!==m?'outside':''} ${ds===loca
 function MembersView({
  members,
  shifts,
- onMember
+ me,
+ onMember,
+ onAdd,
+ onDisable
 }:{
  members:Member[];
  shifts:Shift[];
+ me:Member;
  onMember:(id:string)=>void;
+ onAdd:(name:string)=>void;
+ onDisable:(member:Member)=>void;
 }){
  const month=localDate().slice(0,7);
+ const [name,setName]=useState('');
+ const add=()=>{
+  const value=name.trim();
+  if(!value)return;
+  onAdd(value);
+  setName('');
+ };
 
  return <section className="member-grid">
   <div className="section-title">
@@ -315,11 +328,18 @@ function MembersView({
    <h2>メンバー一覧</h2>
   </div>
 
+  {me.is_host&&<div className="member-manager">
+   <h3>メンバーを追加</h3>
+   <p>追加した名前は、初回登録時の本人選択に表示されます。</p>
+   <div>
+    <input value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')add()}} placeholder="新しいメンバーの名前" maxLength={30}/>
+    <button onClick={add} disabled={!name.trim()}><Plus size={20}/>追加</button>
+   </div>
+  </div>}
+
   {members.map(member=>
-   <button
-    key={member.id}
-    onClick={()=>onMember(member.id)}
-   >
+   <div className="member-row" key={member.id}>
+   <button className="member-open" onClick={()=>onMember(member.id)}>
     <MemberAvatar
      member={member}
      size="large"
@@ -344,6 +364,8 @@ function MembersView({
 
     <ChevronRight/>
    </button>
+   {me.is_host&&!member.is_host&&<button className="member-disable" onClick={()=>onDisable(member)} aria-label={`${shownName(member)}さんを削除`}><Trash2 size={20}/></button>}
+   </div>
   )}
  </section>;
 }
