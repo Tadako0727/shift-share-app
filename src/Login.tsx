@@ -19,8 +19,14 @@ export default function Login({error}:{error:string}){
     setBusy(true);setLocalError('');
     const result=await supabase.rpc('get_registration_options',{p_code:code.trim()});
     setBusy(false);
-    if(result.error||!result.data?.length){
-      setLocalError(result.error?'店舗コードを確認できませんでした。':'登録できる名前がありません。店舗コードが違うか、全員の登録が完了しています。');
+    if(result.error){
+      setLocalError(result.error.message.includes('店舗コードが違います')
+        ? '店舗コードが違います。入力内容を確認してください。'
+        : '店舗コードの確認処理でエラーが発生しました。時間をおいて再度お試しください。');
+      return;
+    }
+    if(!result.data?.length){
+      setLocalError('登録できる名前がありません。管理者にメンバーの追加を依頼してください。');
       return;
     }
     setOptions(result.data as RegistrationOption[]);
