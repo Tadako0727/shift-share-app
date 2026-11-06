@@ -9,6 +9,7 @@ import './auth.css';
 import './swap-marks.css';
 import AvatarCropper from './AvatarCropper';
 import RegistrationCodeSettings from './RegistrationCodeSettings';
+import HostTransferSettings from './HostTransferSettings';
 
 type Tab='today'|'calendar'|'preferences'|'members'|'settings';
 type Draft={id?:string;member_id:string;shift_date:string;start_time:string;end_time:string};
@@ -198,6 +199,7 @@ if(!me)return <div className="splash">
 onColorThemeChange={setColorTheme}
     onToggle={toggleEdit}
     onPayroll={()=>setPayrollOpen(true)}
+    onTransferred={load}
     onLogout={async()=>{
       const current=await supabase.auth.getSession();
       if(current.data.session?.user.is_anonymous &&
@@ -407,7 +409,8 @@ function SettingsView({
   onToggle,
   onPayroll,
   onLogout,
-  onRename
+  onRename,
+  onTransferred
 }:{
   me:Member;
   members:Member[];
@@ -419,6 +422,7 @@ function SettingsView({
   onColorThemeChange:(theme:ColorTheme)=>void;
   onToggle:()=>void;
   onPayroll:()=>void;
+  onTransferred:()=>Promise<void>;
   onLogout:()=>Promise<void>;
   onRename:(s:string)=>Promise<boolean>;
 }){
@@ -500,6 +504,7 @@ function SettingsView({
   </div>
 
   {me.is_host&&<RegistrationCodeSettings/>}
+  {me.is_host&&<HostTransferSettings me={me} members={members} onTransferred={onTransferred}/>}
   <div className="setting-card">
    <label>プロフィール画像</label>
   <input
