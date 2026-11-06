@@ -8,6 +8,7 @@ import {Candidate,createSwapRequest,deleteSwapRequest,readSwapRequests,saveCandi
 import './auth.css';
 import './swap-marks.css';
 import AvatarCropper from './AvatarCropper';
+import RegistrationCodeSettings from './RegistrationCodeSettings';
 
 type Tab='today'|'calendar'|'preferences'|'members'|'settings';
 type Draft={id?:string;member_id:string;shift_date:string;start_time:string;end_time:string};
@@ -473,6 +474,7 @@ function SettingsView({
    <p>本人識別：{me.name}{me.is_host?' · ホスト':''}</p>
   </div>
 
+  {me.is_host&&<RegistrationCodeSettings/>}
   <div className="setting-card">
    <label>プロフィール画像</label>
   <input
