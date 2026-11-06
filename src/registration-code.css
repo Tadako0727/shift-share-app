@@ -1,0 +1,7 @@
+.registration-settings>label{display:flex;align-items:center;gap:8px}
+.registration-settings .registration-rotate,.registration-result button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:10px 14px;border:0;border-radius:12px;background:var(--coral);color:white;font-weight:700}
+.registration-settings button:disabled{opacity:.55}
+.registration-result{display:grid;justify-items:start;gap:10px;padding:15px;margin-top:12px;border:1px solid var(--line,#cbd5e1);border-radius:12px}
+.registration-result strong{overflow-wrap:anywhere;font-size:20px;letter-spacing:.075em;user-select:all}
+.registration-result p,.registration-settings .registration-success{font-size:13px}
+.registration-settings .registration-error{color:#c83e3e;font-size:13px}
