@@ -81,7 +81,7 @@ export default function Login({error}:{error:string}){
     </div>:<div className="login-form">
       {!existing&&<>
         {options.length===0
-          ?<div className="registration-code"><input inputMode="numeric" maxLength={12} value={code} onChange={e=>setCode(e.target.value)} placeholder="店舗コード"/><button disabled={busy||!code.trim()} onClick={()=>void checkCode()}>{busy?'確認中…':'コードを確認'}</button></div>
+          ?<div className="registration-code"><input inputMode="text" autoCapitalize="characters" autoComplete="off" maxLength={24} value={code} onChange={e=>setCode(e.target.value)} placeholder="店舗コード"/><button disabled={busy||!code.trim()} onClick={()=>void checkCode()}>{busy?'確認中…':'コードを確認'}</button></div>
           :<><label>自分の名前</label><select value={memberId} onChange={e=>setMemberId(e.target.value)}>{options.map(option=><option value={option.id} key={option.id}>{option.display_name?.trim()||option.name}</option>)}</select></>}
       </>}
       {(existing||options.length>0)&&<><label>メールアドレス</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="name@example.com" autoComplete="email"/></>}
