@@ -1,0 +1,11 @@
+.host-transfer>label:first-child{display:flex;align-items:center;gap:8px;font-weight:700}
+.host-transfer>button,.host-transfer-actions button{border:1px solid var(--line,#b7bec9);border-radius:10px;padding:11px 14px;font-weight:700;background:transparent;color:inherit}
+.host-transfer select{display:block;width:100%;border:1px solid #9aa4b5;border-radius:10px;padding:12px;margin:10px 0;background:var(--card,#fff);color:var(--ink,#171a20)}
+.host-transfer-confirm{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
+.host-transfer-confirm input{width:auto;margin-top:3px}
+.host-transfer-confirm span{font-size:13px}
+.host-transfer-actions{display:flex;flex-wrap:wrap;gap:8px}
+.host-transfer-actions button.host-transfer-danger{background:#a93030;color:white;border-color:#a93030}
+.host-transfer button:disabled{opacity:.5}
+.host-transfer-error{color:#bb3333}
+.host-transfer-notice{padding:12px;border:1px solid #6a9b8c;border-radius:12px}
