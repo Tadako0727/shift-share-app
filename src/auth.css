@@ -15,3 +15,8 @@
 .login-form .login-switch{background:transparent;border:1px solid #ffffff33;color:#fff;padding:11px}
 .login-note{margin:18px 0 0!important;font-size:12px!important;color:#929aa8!important;text-align:center}
 @media(max-width:380px){.registration-code{grid-template-columns:1fr}}
+
+.email-registration{margin-top:8px;display:grid;gap:10px;border-top:1px solid #ffffff33;padding-top:13px;text-align:left}
+.email-registration summary{cursor:pointer;color:#cbd1db;font-weight:700;font-size:13px;margin-bottom:10px}
+.email-registration[open]{display:grid}
+.email-registration input,.email-registration button{width:100%;margin-top:7px}
