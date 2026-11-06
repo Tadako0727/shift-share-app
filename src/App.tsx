@@ -323,6 +323,21 @@ function MembersView({
 }){
  const month=localDate().slice(0,7);
  const [name,setName]=useState('');
+ const [deviceMembers,setDeviceMembers]=useState<string[]>([]);
+ const [deviceError,setDeviceError]=useState('');
+ const refreshDevices=async()=>{
+   if(!me.is_host)return;
+   const result=await supabase.rpc('host_device_member_ids');
+   if(result.error)setDeviceError('端末登録情報を読み込めませんでした。');
+   else {setDeviceError('');setDeviceMembers((result.data||[]) as string[]);}
+ };
+ useEffect(()=>{void refreshDevices()},[me.id,members.length]);
+ const resetDevice=async(member:Member)=>{
+   if(!confirm(`${shownName(member)}さんの端末登録を解除しますか？以前の端末は利用できなくなり、本人は店舗コードを使って登録し直す必要があります。シフト履歴は保持されます。`))return;
+   const result=await supabase.rpc('host_reset_device_member',{p_member_id:member.id});
+   if(result.error)setDeviceError(result.error.message);
+   else await refreshDevices();
+ };
  const add=()=>{
   const value=name.trim();
   if(!value)return;
@@ -344,6 +359,8 @@ function MembersView({
     <button onClick={add} disabled={!name.trim()}><Plus size={20}/>追加</button>
    </div>
   </div>}
+
+  {deviceError&&<p role="alert" className="error">{deviceError}</p>}
 
   {members.map(member=>
    <div className="member-row" key={member.id}>
@@ -372,6 +389,7 @@ function MembersView({
 
     <ChevronRight/>
    </button>
+   {me.is_host&&deviceMembers.includes(member.id)&&<button className="member-device-reset" onClick={()=>void resetDevice(member)}>端末登録を解除</button>}
    {me.is_host&&!member.is_host&&<button className="member-disable" onClick={()=>onDisable(member)} aria-label={`${shownName(member)}さんを削除`}><Trash2 size={20}/></button>}
    </div>
   )}
