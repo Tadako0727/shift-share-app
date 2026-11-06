@@ -90,7 +90,7 @@ export default function App(){
 },[colorTheme]);
  const authMe=members.find(m=>m.id===meId),me=authMe;
  const load=async()=>{const [m,s,h,c]=await Promise.all([supabase.from('members').select('id,name,display_name,avatar_url,is_host').eq('active',true).order('name'),supabase.from('shifts').select('*').order('shift_date').order('start_time'),supabase.from('shift_history').select('*').order('created_at',{ascending:false}).limit(50),supabase.from('closed_days').select('closed_date,label,kind').order('closed_date')]);if(m.error||s.error||c.error){setError(m.error?.message||s.error?.message||c.error?.message||'読込に失敗しました');return}setMembers(m.data||[]);setShifts(s.data||[]);setHistory(h.data||[]);setClosedDays((c.data||[]) as ClosedDay[])};
- useEffect(()=>{if(DEMO_MODE)return;let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session||session.user.is_anonymous){if(session)await supabase.auth.signOut();if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){const delays = [
+ useEffect(()=>{if(DEMO_MODE)return;let active=true;const start=async()=>{if(!configured){setError('Vercelの環境変数が設定されていません');setLoading(false);return}const {data}=await supabase.auth.getSession();const session=data.session;if(!session){if(active){setSignedIn(false);setLoading(false)}return}let mine=await supabase.rpc('current_member_profile').maybeSingle();let mineData=mine.data as Member|null;if(!mineData){try{const params=new URLSearchParams(location.search);const memberId=params.get('register_member');const code=params.get('register_code');const pending=memberId&&code?{memberId,code}:JSON.parse(localStorage.getItem('shiftcal-pending-registration')||'null') as {memberId:string;code:string}|null;if(pending){const claimed=await supabase.rpc('claim_member',{p_member_id:pending.memberId,p_code:pending.code});if(!claimed.error){const delays = [
   500,
   1000,
   2000
@@ -123,7 +123,11 @@ if (mineData) {
     '',
     location.pathname
   );
-}}}}catch{}}if (mine.error || !mineData) {
+}}}}catch{}}if(!mineData && session.user.is_anonymous){
+  if(active){setSignedIn(false);setLoading(false);setError('');}
+  return;
+}
+if (mine.error || !mineData) {
   const delays = [
     500,
     1000,
@@ -195,6 +199,9 @@ onColorThemeChange={setColorTheme}
     onToggle={toggleEdit}
     onPayroll={()=>setPayrollOpen(true)}
     onLogout={async()=>{
+      const current=await supabase.auth.getSession();
+      if(current.data.session?.user.is_anonymous &&
+        !window.confirm('この端末の登録情報が失われます。メール未登録の場合、再ログインできず管理者による登録解除・再登録が必要です。ログアウトしますか？'))return;
       sessionStorage.removeItem(EDIT_KEY);
       localStorage.removeItem(MEMBER_KEY);
       setEdit(false);
@@ -316,6 +323,21 @@ function MembersView({
 }){
  const month=localDate().slice(0,7);
  const [name,setName]=useState('');
+ const [deviceMembers,setDeviceMembers]=useState<string[]>([]);
+ const [deviceError,setDeviceError]=useState('');
+ const refreshDevices=async()=>{
+   if(!me.is_host)return;
+   const result=await supabase.rpc('host_device_member_ids');
+   if(result.error)setDeviceError('端末登録情報を読み込めませんでした。');
+   else {setDeviceError('');setDeviceMembers((result.data||[]) as string[]);}
+ };
+ useEffect(()=>{void refreshDevices()},[me.id,members.length]);
+ const resetDevice=async(member:Member)=>{
+   if(!confirm(`${shownName(member)}さんの端末登録を解除しますか？以前の端末は利用できなくなり、本人は店舗コードを使って登録し直す必要があります。シフト履歴は保持されます。`))return;
+   const result=await supabase.rpc('host_reset_device_member',{p_member_id:member.id});
+   if(result.error)setDeviceError(result.error.message);
+   else await refreshDevices();
+ };
  const add=()=>{
   const value=name.trim();
   if(!value)return;
@@ -337,6 +359,8 @@ function MembersView({
     <button onClick={add} disabled={!name.trim()}><Plus size={20}/>追加</button>
    </div>
   </div>}
+
+  {deviceError&&<p role="alert" className="error">{deviceError}</p>}
 
   {members.map(member=>
    <div className="member-row" key={member.id}>
@@ -365,6 +389,7 @@ function MembersView({
 
     <ChevronRight/>
    </button>
+   {me.is_host&&deviceMembers.includes(member.id)&&<button className="member-device-reset" onClick={()=>void resetDevice(member)}>端末登録を解除</button>}
    {me.is_host&&!member.is_host&&<button className="member-disable" onClick={()=>onDisable(member)} aria-label={`${shownName(member)}さんを削除`}><Trash2 size={20}/></button>}
    </div>
   )}
